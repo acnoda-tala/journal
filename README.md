@@ -448,7 +448,9 @@ You asked to be able to start fresh chats anytime. Do this:
   "Next up in the calendar" strip (falls back silent on failure).
 - All dates anchor to `TERM_START = '2026-08-31'` plus per-block `from/to` at the
   top of planner.html - one comment explains how to shift them if the guide moves.
-- Journal + Digest **footers now link Planner** ("Digest · Planner · Admin").
+- Journal + Digest **footers now link Planner** ("Digest · Planner · Admin"); the
+  **sidebar rail-nav** on both pages now carries "☑ Planner" between the digest and
+  the admin desk too.
 - Files touched: `planner.html` (NEW), `index.html`, `course.html`, `README.md`.
 - Install: PART A with the touched files (planner.html is new - make sure it
   lands at repo root, next to index.html).
