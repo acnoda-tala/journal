@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Planner · Tala ni Arnold</title>
+<meta name="description" content="The study desk: daily objectives, weekly map, and deadlines for DEVC 202 - Development Communication Concepts and Approaches.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--wash); color: var(--ink); font-family: var(--sans); }
+
+  .pl-top { max-width: 1060px; margin: 0 auto; padding: 20px 22px; display: flex; justify-content: space-between;
+    align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .pl-brand { font-family: var(--serif); font-size: 19px; letter-spacing: .2px; }
+  .pl-brand .pl-star { color: var(--maroon); }
+  .pl-brand em { font-family: var(--hand); color: var(--maroon); font-size: 17px; margin-left: 6px; }
+  .pl-top nav a { color: var(--ink-soft); text-decoration: none; font-size: 14px; margin-left: 16px; }
+  .pl-top nav a:first-child { margin-left: 0; }
+  .pl-top nav a.on { color: var(--maroon); font-weight: 600; }
+  .pl-top nav a:hover { color: var(--maroon); }
+
+  .pl-hero { max-width: 1060px; margin: 8px auto 0; padding: 34px 22px 6px; }
+  .pl-kicker { font-size: 12px; letter-spacing: 2.6px; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+  .pl-hero h1 { font-family: var(--serif); font-size: clamp(30px, 5vw, 44px); line-height: 1.06; margin: 10px 0 8px; font-weight: 600; }
+  .pl-hero .pl-sub { color: var(--ink-soft); font-size: 15.5px; max-width: 62ch; line-height: 1.55; }
+  .pl-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .pl-chip { font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+    border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); }
+  .pl-chip.hot { border-color: var(--maroon); color: var(--maroon); background: #fdf2f2; }
+
+  .pl-wrap { max-width: 1060px; margin: 0 auto; padding: 24px 22px 60px; display: grid; gap: 18px; }
+
+  .pl-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: var(--radius);
+    padding: 22px 24px; box-shadow: 0 10px 28px rgba(30, 18, 10, .05); }
+
+  .pl-today { border-left: 4px solid var(--maroon); }
+  .pl-today .pl-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--maroon); font-weight: 700; }
+  .pl-today .pl-obj { font-family: var(--serif); font-size: clamp(18px, 2.6vw, 23px); line-height: 1.35; margin: 10px 0 4px; }
+  .pl-today label { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; margin-top: 8px; }
+  .pl-today input[type="checkbox"] { width: 21px; height: 21px; margin-top: 2px; accent-color: var(--maroon); flex: none; }
+  .pl-today .pl-hint { color: var(--ink-faint); font-size: 12.5px; margin-top: 10px; }
+  .pl-today.is-done .pl-obj { text-decoration: line-through; color: var(--ink-faint); }
+
+  .pl-rails { display: grid; gap: 10px; grid-template-columns: 1fr; margin-top: 6px; }
+  @media (min-width: 720px) { .pl-rails { grid-template-columns: 1fr 1fr; } }
+  .pl-rail { background: var(--paper-card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px 18px; }
+  .pl-rail .rl-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 7px; }
+  .pl-rail .rl-row b { color: var(--ink); }
+  .pl-rail .rl-track { height: 8px; border-radius: 999px; background: var(--wash); border: 1px solid var(--rule); overflow: hidden; }
+  .pl-rail .rl-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--maroon), var(--gold)); transition: width .5s ease; }
+
+  .pl-next h2, .pl-seq h2 { font-family: var(--serif); font-size: 21px; margin: 0 0 4px; font-weight: 600; }
+  .pl-mini { color: var(--ink-faint); font-size: 13px; margin-bottom: 14px; }
+  .pl-nextgrid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pl-ev { border: 1px solid var(--rule); border-radius: 10px; background: var(--wash); padding: 10px 14px; max-width: 340px; }
+  .pl-ev .pe-d { font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; }
+  .pl-ev .pe-t { font-size: 14px; font-weight: 600; margin: 3px 0 2px; }
+  .pl-ev .pe-n { font-size: 12.5px; color: var(--ink-soft); }
+
+  .pl-block { background: var(--paper-card); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+  .pl-block[open] { box-shadow: 0 12px 30px rgba(30, 18, 10, .06); }
+  .pl-block.is-now { border-color: var(--maroon); }
+  .pl-block.is-past { opacity: .72; }
+  .pl-block summary { list-style: none; cursor: pointer; padding: 18px 22px; display: grid; gap: 8px; }
+  .pl-block summary::-webkit-details-marker { display: none; }
+  .pl-bsum1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+  .pl-w { font-family: var(--serif); font-size: 19px; font-weight: 700; }
+  .pl-dates { color: var(--ink-faint); font-size: 13px; }
+  .pl-nowpill { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--maroon); background: #fbeaea; border: 1px solid #ecc8c8; padding: 3px 10px; border-radius: 999px; }
+  .pl-donepct { margin-left: auto; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+  .pl-focus { font-size: 14.5px; color: var(--ink); }
+  .pl-focus .due { color: var(--maroon); font-weight: 700; }
+  .pl-btrack { height: 6px; border-radius: 999px; background: var(--wash); border: 1px solid var(--rule); overflow: hidden; }
+  .pl-bfill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--maroon), var(--gold)); transition: width .4s ease; }
+
+  .pl-bbody { border-top: 1px solid var(--rule); padding: 18px 22px 22px; display: grid; gap: 18px; }
+  .pl-cols { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .pl-cols { grid-template-columns: 1fr 1fr 1fr; } }
+  .pl-col h3 { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--maroon); margin: 0 0 8px; font-weight: 700; }
+  .pl-col ul { margin: 0; padding: 0 0 0 18px; color: var(--ink-soft); font-size: 13.5px; line-height: 1.55; display: grid; gap: 6px; }
+  .pl-col a { color: var(--maroon); }
+  .pl-col .due { color: var(--maroon); font-weight: 700; }
+
+  .pl-days { display: grid; gap: 6px; }
+  .pl-days .dh { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; margin: 4px 0 6px; }
+  .pl-day { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--rule); border-radius: 9px;
+    padding: 9px 12px; background: var(--wash); }
+  .pl-day input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--maroon); flex: none; }
+  .pl-day .pl-when { font-size: 11.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-faint);
+    flex: none; width: 74px; padding-top: 3px; }
+  .pl-day .pl-what { font-size: 13.5px; line-height: 1.45; color: var(--ink); }
+  .pl-day.is-today { border-color: var(--maroon); background: #fdf6f2; }
+  .pl-day.is-today .pl-when { color: var(--maroon); }
+  .pl-day.is-past .pl-what { color: var(--ink-faint); }
+  .pl-day.is-done .pl-what { text-decoration: line-through; color: var(--ink-faint); }
+  .pl-day .pl-dueflag { color: var(--maroon); }
+
+  .pl-note { background: var(--paper-card); border: 1px dashed var(--rule); border-radius: var(--radius); padding: 18px 22px;
+    color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+  .pl-note .pl-hand { font-family: var(--hand); font-size: 21px; color: var(--maroon); }
+
+  .pl-foot { max-width: 1060px; margin: 0 auto; padding: 20px 22px 54px; text-align: center; color: var(--ink-faint); font-size: 13px; }
+  .pl-foot .pl-sig { font-family: var(--hand); font-size: 24px; color: var(--maroon); margin-bottom: 8px; }
+  .pl-foot nav { margin-top: 8px; }
+  .pl-foot nav a { color: var(--ink-soft); text-decoration: none; margin: 0 8px; }
+  .pl-foot nav a:hover { color: var(--maroon); }
+
+  @media (prefers-reduced-motion: reduce) { .pl-rail .rl-fill, .pl-bfill { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="pl-top">
+  <div class="pl-brand"><span class="pl-star">✦</span> TALA <em class="pl-ni">ni arnold</em></div>
+  <nav>
+    <a href="index.html#/">Journal</a>
+    <a href="index.html#/calendar">Calendar</a>
+    <a href="course.html">Digest</a>
+    <a href="planner.html" class="on">Planner</a>
+    <a href="admin.html">Admin ✎</a>
+  </nav>
+</div>
+
+<section class="pl-hero">
+  <div class="pl-kicker">The study desk</div>
+  <h1>Study planner.</h1>
+  <p class="pl-sub" id="pl-sub">DEVC 202 · Development Communication Concepts and Approaches ·
+    Master of Development Communication, UPOU · First Semester 2026-2027. One objective every day,
+    ticked as I go - a working student&rsquo;s semester, out loud.</p>
+  <div class="pl-chips" id="pl-chips"></div>
+</section>
+
+<main class="pl-wrap">
+
+  <section class="pl-card pl-today" id="pl-today">
+    <div class="pl-label" id="today-label">Today</div>
+    <label><input type="checkbox" id="today-check"><span><span class="pl-obj" id="today-obj"></span>
+    <span class="pl-hint" id="today-hint">Tick it when it is genuinely done. Progress is saved in this browser.</span></span></label>
+  </section>
+
+  <div class="pl-rails" id="pl-rails"></div>
+
+  <section class="pl-card pl-next" id="pl-next" hidden>
+    <h2>Next up in the calendar</h2>
+    <div class="pl-mini">Live from the same feed as the Journal calendar - it updates itself.</div>
+    <div class="pl-nextgrid" id="pl-nextgrid"></div>
+  </section>
+
+  <section class="pl-seq" aria-label="Study sequence">
+    <h2 style="font-size:24px">The sequence, week by week</h2>
+    <div class="pl-mini">Built from the course guide&rsquo;s <a href="course.html#weeks" style="color:var(--maroon)">milestone calendar</a>.
+      Tick a line when it is done; your ticks stay on this device.</div>
+    <div id="pl-blocks" style="display:grid;gap:16px;margin-top:16px"></div>
+  </section>
+
+  <aside class="pl-note">
+    <p style="margin:0 0 6px"><span class="pl-hand">the shape of my week -</span></p>
+    <p style="margin:0">Monday to Friday evenings, one honest block (about ninety minutes) after office hours;
+      Saturday afternoons are for the long haul - drafts, journals, TMA pushes; Sunday morning is a light skim
+      and the rest of Sunday is mine. Miss a day? Do the next one. The sequence forgives, the deadlines do not.</p>
+  </aside>
+
+</main>
+
+<footer class="pl-foot">
+  <div class="pl-sig">padagos! · arnold c. noda</div>
+  <nav>
+    <a href="index.html#/">Journal</a> ·
+    <a href="index.html#/calendar">Calendar</a> ·
+    <a href="course.html">Digest</a> ·
+    <a href="admin.html">Admin ✎</a>
+  </nav>
+</footer>
+
+<script src="assets/js/config.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ================= the plan =================
+     Dates anchor to the course guide's milestone calendar (digest #weeks).
+     If the guide shifts, edit TERM_START and the from/to of the blocks below. */
+  var TERM_START = '2026-08-31'; // Monday of Week 1
+
+  var PLAN = [
+    {
+      id: 'w12', w: 'Weeks 1-2', from: '2026-08-31', to: '2026-09-13',
+      focus: 'Orientation. Prologue & Chapter 1. Meet the class.',
+      due: null,
+      read: [
+        { t: 'Course guide, cover to cover (in the LMS)' },
+        { t: 'Prologue + Chapter 1 of the course pack' },
+        { t: 'The digest: the course at a glance', a: 'course.html#overview' }
+      ],
+      ship: [
+        { t: 'Discussion Board: my introduction posted' },
+        { t: 'Journal entry 1: why I study this, here in Albay' }
+      ],
+      dos: [
+        { t: 'Fix the study hours and tell the household' },
+        { t: 'Scatter every due date across the family calendar' },
+        { t: 'Start the note-card habit: one card per reading' }
+      ],
+      days: [
+        'Orientation: skim the whole course guide; highlight every due date.',
+        'Set the study hours - weekday evening block + Saturday long block; pin them at home.',
+        'Tour the LMS: find the Discussion Board, TMA dropboxes, and the gradebook.',
+        'Read the Prologue in one sitting. Three cards: what I expect from this course.',
+        'Chapter 1, first half. One card per subsection heading.',
+        'Saturday long block: finish Chapter 1; sketch journal entry 1.',
+        'Sunday: 15-minute skim of the week\'s cards. Rest genuinely.',
+        'Define in my own words: development, communication, development communication.',
+        'Draft the Discussion Board introduction (Legazpi, the radio, this journal).',
+        'Post the introduction; reply to two classmates the same evening.',
+        'Warm-up read: the digest overview with a pencil.',
+        'Write journal entry 1 - 600-800 words, honest over pretty.',
+        'Saturday: tidy entry 1; back up the sheet and drive folder.',
+        'Sunday: rest. Peek at Week 3-4\'s objective; TMA 1 season begins.'
+      ]
+    },
+    {
+      id: 'w34', w: 'Weeks 3-4', from: '2026-09-14', to: '2026-09-27',
+      focus: 'Societal problems & the paradigms we see them through.',
+      due: { d: '2026-09-27', t: 'TMA 1 (10%)' },
+      read: [
+        { t: 'Course pack: societal problems (the recurring eight)' },
+        { t: 'Paradigms: modernization, dependency, participation' },
+        { t: 'Digest: eight problems that keep coming back', a: 'course.html#unit1' }
+      ],
+      ship: [
+        { t: 'TMA 1: societal-problems scrapbook + 10-day inventory', d: '2026-09-27' },
+        { t: 'Two substantive replies to classmates' }
+      ],
+      dos: [
+        { t: 'Start the 10-day social problems inventory this week' },
+        { t: 'Keep the scrapbook article feeding off my monitoring' }
+      ],
+      days: [
+        'Open the unit on societal problems; list the recurring ones on one page.',
+        'Reading, sitting one: one card per problem, each with a Bicol example.',
+        'Reading, sitting two: start the 10-day social problems inventory today.',
+        'Inventory day 2; paradigm cards: modernization vs dependency.',
+        'Paradigms continued - the "blind men" reading; three sharp cards.',
+        'Saturday: inventory days 3-4; outline TMA 1 (article + inventory + cover note).',
+        'Sunday: rest; skim the cards.',
+        'Choose the scrapbook topic at the dinner table; defend it in two sentences.',
+        'Draft the scrapbook article, 600+ words, with the piece I monitored.',
+        'Revisit two classmates\' posts; leave one substantial reply each.',
+        'Inventory days 5-7; revise the article; settle sources and captions.',
+        'Saturday: cold-read the article aloud; snapshot the inventory cleanly.',
+        'Sunday: rest; submission checklist ready.',
+        'DUE: TMA 1 submitted before 23:59 - article, scrapbook, inventory, everything.'
+      ]
+    },
+    {
+      id: 'w56', w: 'Weeks 5-6', from: '2026-09-28', to: '2026-10-11',
+      focus: 'The communication process, and the media it rides.',
+      due: null,
+      read: [
+        { t: 'Course pack: the communication process' },
+        { t: 'Course pack: communication media' },
+        { t: 'Digest: from transmission to process', a: 'course.html#unit2' }
+      ],
+      ship: [
+        { t: 'Five reactions to classmates\' postings' },
+        { t: 'Activity sheets for both modules, filed' }
+      ],
+      dos: [
+        { t: 'Journal entry 2: a message that failed in my municipality - and why' }
+      ],
+      days: [
+        'TMA 1 is in. Twenty-minute tidy: folders, sheet backup, take a breath.',
+        'Process reading, sitting one. From memory: map sender-channel-receiver.',
+        'Process, sitting two; one card per element, each with a barangay-radio example.',
+        'Do the process activities in the LMS; note anything graded.',
+        'Media reading, sitting one; media-map my municipality\'s channels.',
+        'Saturday: finish the media reading + activity sheet; sketch journal entry 2.',
+        'Sunday: rest; 15-minute skim.',
+        'Forum sprint: read many posts, star the three best quotes.',
+        'Write forum reactions 1 and 2.',
+        'Write forum reactions 3 and 4.',
+        'Write reaction 5; confirm the tracker shows five.',
+        'Digest deep-read: "From transmission to process" with a pencil.',
+        'Saturday: activity sheets polished; backup; entry 2 published.',
+        'Sunday: rest. TMA 2 lurks next block - keep poverty lens questions ready.'
+      ]
+    },
+    {
+      id: 'w78', w: 'Weeks 7-8', from: '2026-10-12', to: '2026-10-25',
+      focus: 'Barriers & concepts - and the second paper.',
+      due: { d: '2026-10-25', t: 'TMA 2 (10%)' },
+      read: [
+        { t: 'Course pack: barriers to effective communication' },
+        { t: 'Course pack: communication concepts' },
+        { t: 'TMA 2 sources: PSA, NEDA, my agency\'s data' }
+      ],
+      ship: [
+        { t: 'TMA 2: why is poverty still prevalent in the Philippines?', d: '2026-10-25' }
+      ],
+      dos: [
+        { t: 'Draft early: skeleton by the first Saturday', },
+        { t: 'One full buffer day before the deadline - non-negotiable' }
+      ],
+      days: [
+        'Barriers reading; card each barrier type with an example from my work.',
+        'Barriers activities; harvest phrases worth quoting for TMA 2.',
+        'Open the TMA 2 prompt today; gather PSA/NEDA/agency sources.',
+        'Concepts reading, sitting one; keep the poverty lens on.',
+        'Concepts, sitting two; TMA 2 skeleton: claim, three pillars, evidence.',
+        'Saturday: TMA 2 full first draft, data cited.',
+        'Sunday: rest; skim the cards.',
+        'Re-read the draft against the rubric, side by side; fix structure.',
+        'Cold-read aloud; trim to the word budget.',
+        'Third angle: swap-read with a classmate if possible.',
+        'Citations and figures final; format to the guide\'s specs.',
+        'Saturday: freeze the paper; export and print-check.',
+        'Sunday: rest; submit-tomorrow checklist.',
+        'DUE: TMA 2 submitted before 23:59.'
+      ]
+    },
+    {
+      id: 'w910', w: 'Weeks 9-10', from: '2026-10-26', to: '2026-11-08',
+      focus: 'Definitions & foundations - what devcom is, cold.',
+      due: null,
+      read: [
+        { t: 'Course pack: definitions of development communication' },
+        { t: 'Course pack: foundations of development communication' },
+        { t: 'Digest: the definition to know cold', a: 'course.html#unit3' }
+      ],
+      ship: [
+        { t: 'Five reactions to classmates\' postings' },
+        { t: 'Journal entry 3: a definition I can defend' }
+      ],
+      dos: [
+        { t: 'Recite the canonical definition without looking - daily, this block' }
+      ],
+      days: [
+        'Slow morning. Then a 30-minute sweep: journal, sheet, files, backups.',
+        'Definitions, sitting one: the canonical definition, committed to a card.',
+        'Definitions, sitting two: compare three traditions, one card each.',
+        'Digest drill: "The definition to know cold" - recite blind, then check.',
+        'Foundations, sitting one: the values and assumptions card.',
+        'Saturday: finish foundations + activity sheet; write journal entry 3.',
+        'Sunday: rest; skim.',
+        'Forum sprint: read many posts; star three quotes.',
+        'Reactions 1 and 2.',
+        'Reactions 3 and 4.',
+        'Reaction 5; notebook: one misconception I corrected this block.',
+        'Light day: re-organize all cards by module; list the gaps.',
+        'Saturday: backup; skim the TMA 3 source list ("Proactive Information Society").',
+        'Sunday: rest. November is three-fronted - paper, forums, journal.'
+      ]
+    },
+    {
+      id: 'w1112', w: 'Weeks 11-12', from: '2026-11-09', to: '2026-11-22',
+      focus: 'Practice, policy, and Flor\'s proactive citizen.',
+      due: { d: '2026-11-22', t: 'TMA 3 (10%)' },
+      read: [
+        { t: 'Course pack: development communication practice' },
+        { t: 'Course pack: development communication and policy' },
+        { t: 'Flor (1983): The Proactive Information Society' }
+      ],
+      ship: [
+        { t: 'TMA 3: The Proactive Information Society', d: '2026-11-22' }
+      ],
+      dos: [
+        { t: 'Journal sweep: publish any missing weekly entry' }
+      ],
+      days: [
+        'Practice reading; margin-note it against my information-office daily work.',
+        'Practice activities; card: what a devcom practitioner actually ships.',
+        'Policy reading; the policy-cycle card.',
+        'Flor (1983), first pass. Underline the action verbs.',
+        'Flor, second pass with a marker; TMA 3 skeleton.',
+        'Saturday: TMA 3 first draft - Flor\'s argument + my sector\'s angle.',
+        'Sunday: rest; skim.',
+        'Rubric check; strengthen the counterpoint paragraph.',
+        'Cold-read aloud; trim; verify every citation.',
+        'Show one page to a colleague for a third eye.',
+        'Attachments gathered; draft frozen.',
+        'Saturday: final polish; submission checklist.',
+        'Sunday: breathe.',
+        'DUE: TMA 3 submitted before 23:59. Three for three.'
+      ]
+    },
+    {
+      id: 'w13', w: 'Week 13', from: '2026-11-23', to: '2026-11-29',
+      focus: 'The myths, and the forums close.',
+      due: { d: '2026-11-29', t: 'Discussion Forums 1-3 (10%)' },
+      read: [
+        { t: 'Course pack: development communication myths' }
+      ],
+      ship: [
+        { t: 'All Discussion Forums complete before they close', d: '2026-11-29' }
+      ],
+      dos: [
+        { t: 'Journal + RSP materials audit (next week we finalize them)' }
+      ],
+      days: [
+        'Myths reading; one card per myth, each with my verdict.',
+        'Myths activities; re-check every activity sheet across all modules.',
+        'Forum audit: every required post and reaction present? Screenshot the tracker.',
+        'Fill any forum gaps with two genuinely useful contributions.',
+        'Journal sweep: list missing entries; audit the RSP materials folder.',
+        'Saturday: resume-and-finish block for journal + RSP drafts. Forums by tonight.',
+        'DUE by midnight: Discussion Forums 1-3 close 23:59 - be done before lunch.'
+      ]
+    },
+    {
+      id: 'w14', w: 'Week 14', from: '2026-11-30', to: '2026-12-06',
+      focus: 'Finalize the journal and the RSP.',
+      due: { d: '2026-12-06', t: 'Journal + RSP (40%)' },
+      read: [
+        { t: 'The guide\'s journal & RSP specifications, once more' },
+        { t: 'My own whole term: entries, reactions, papers - skim-read as the reader' }
+      ],
+      ship: [
+        { t: 'The journal, finalized and submitted', d: '2026-12-06' },
+        { t: 'The RSP, finalized and submitted', d: '2026-12-06' }
+      ],
+      dos: [
+        { t: 'Proof passes on a fresh phone, as the examiner will see it' }
+      ],
+      days: [
+        'Assemble the journal for submission: front matter, index, links all working.',
+        'Journal proof pass 1: structure, citations, the about page.',
+        'Journal proof pass 2: typos, dates, names; mobile screenshot check.',
+        'RSP: everything drafted - intro, reflections, appendix laid out.',
+        'RSP: proof and align to the guide\'s specs; export the final file.',
+        'Saturday: dry-run BOTH deliverables on a fresh phone/PC, as the reader would.',
+        'DUE: journal + RSP submitted before 23:59. Evening off. You earned it.'
+      ]
+    },
+    {
+      id: 'buf', w: 'Respit & review', from: '2026-12-07', to: '2026-12-13',
+      focus: 'Recover, review for the final exam, script the vlog.',
+      due: null,
+      read: [
+        { t: 'Exam coverage from the course guide' },
+        { t: 'Vlog brief: what the reflection should stand on' }
+      ],
+      ship: [
+        { t: 'Vlog script: three pillars - grown as person, professional, Filipino' }
+      ],
+      dos: [
+        { t: 'Blind-recall card drills across all modules' }
+      ],
+      days: [
+        'Respit morning. Then 30 minutes: coverage list + vlog brief from the guide.',
+        'Review pass: definitions and paraphrase drills (blind recall with cards).',
+        'Review pass: models and barriers - sketch from memory, then check.',
+        'Review pass: practice, policy, myths.',
+        'Vlog: script the reflection around the three pillars.',
+        'Vlog: rehearsal takes; pick the shooting spot with decent light.',
+        'Sunday: rest. Charge the gear. Finals week, we go.'
+      ]
+    },
+    {
+      id: 'fin', w: 'Final week', from: '2026-12-14', to: '2026-12-18',
+      focus: 'The final exam and the reflection vlog.',
+      due: { d: '2026-12-18', t: 'Reflection vlog (oral assessment)' },
+      read: [
+        { t: 'Last reads only: the one-page cheats from each module' }
+      ],
+      ship: [
+        { t: 'Final examination, sat well' },
+        { t: 'Reflection vlog produced and submitted', d: '2026-12-18' }
+      ],
+      dos: [
+        { t: 'Sleep properly every night this week - that IS the study plan' }
+      ],
+      days: [
+        'Final exam: sleep early tonight; breakfast; log in fifteen minutes early.',
+        'Post-exam: slow breakfast, hour of gratitude, 30 minutes of debrief notes.',
+        'Vlog principal photography, plus cover shots around the municipality.',
+        'Assemble and cut the vlog; subtitles; attribution for any borrowed clips.',
+        'DUE: reflection vlog submitted 23:59. Term closed. Padagos, Arnold.'
+      ]
+    }
+  ];
+
+  var DEADLINES = [
+    { d: '2026-09-27', t: 'TMA 1' },
+    { d: '2026-10-25', t: 'TMA 2' },
+    { d: '2026-11-22', t: 'TMA 3' },
+    { d: '2026-11-29', t: 'Discussion forums' },
+    { d: '2026-12-06', t: 'Journal + RSP' },
+    { d: '2026-12-18', t: 'Reflection vlog' }
+  ];
+
+  /* ================= helpers ================= */
+  var $ = function (s) { return document.querySelector(s); };
+  var LS = 'tala_plan_';
+  var WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function toD(s) { // date-only at local midnight
+    var p = s.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2], 12);
+  }
+  function iso(d) {
+    var z = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate());
+  }
+  function today() { var t = new Date(); return toD(iso(t)); }
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function nice(d) { return WD[d.getDay()].slice(0, 3) + ' ' + d.getDate() + ' ' + MO[d.getMonth()]; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function tickK(dateIso) { return LS + dateIso; }
+  function isTicked(dateIso) { try { return localStorage.getItem(tickK(dateIso)) === '1'; } catch (e) { return false; } }
+  function setTicked(dateIso, on) {
+    try { on ? localStorage.setItem(tickK(dateIso), '1') : localStorage.removeItem(tickK(dateIso)); } catch (e) {}
+  }
+
+  PLAN.forEach(function (b) { b.f = toD(b.from); b.t = toD(b.to); });
+
+  function currentBlock(t) {
+    for (var i = 0; i < PLAN.length; i++) if (t >= PLAN[i].f && t <= PLAN[i].t) return PLAN[i];
+    return null;
+  }
+
+  /* ================= hero chips ================= */
+  var t = today();
+  var chips = [];
+  chips.push('Today: ' + WD[t.getDay()] + ' ' + t.getDate() + ' ' + MO[t.getMonth()] + ' ' + t.getFullYear());
+  var now = currentBlock(t);
+  chips.push(now ? now.w + ' · in session' : (iso(t) < TERM_START ? 'Term opens ' + TERM_START : 'Term closed'));
+  var nextD = null;
+  DEADLINES.forEach(function (dl) { if (!nextD && toD(dl.d) >= t) nextD = dl; });
+  if (nextD) {
+    var days = Math.round((toD(nextD.d) - t) / 86400000);
+    chips.push((days === 0 ? 'DUE TODAY: ' : nextD.t + ' in ' + days + ' day' + (days === 1 ? '' : 's')) + (days === 0 ? nextD.t : ''));
+  }
+  $('#pl-chips').innerHTML = chips.map(function (c, i) {
+    return '<span class="pl-chip' + (i === chips.length - 1 && nextD ? ' hot' : '') + '">' + esc(c) + '</span>';
+  }).join('');
+
+  /* ================= today card ================= */
+  var todayCard = $('#pl-today'), obj = '';
+  if (now) {
+    var off = Math.round((t - now.f) / 86400000);
+    obj = now.days[Math.min(off, now.days.length - 1)] || 'Free study - pick any lingering card.';
+  } else if (iso(t) < TERM_START) {
+    obj = 'The term opens soon. Tonight: skim this planner once, and fix your study hours.';
+  } else {
+    obj = 'Term complete. Archive the cards with a photo; keep the Tuesday habit for what comes next.';
+  }
+  $('#today-label').textContent = 'Today · ' + nice(t) + (now ? ' · ' + now.w : '');
+  $('#today-obj').textContent = obj;
+  var tch = $('#today-check');
+  tch.checked = isTicked(iso(t));
+  todayCard.classList.toggle('is-done', tch.checked);
+  tch.addEventListener('change', function () {
+    setTicked(iso(t), tch.checked);
+    todayCard.classList.toggle('is-done', tch.checked);
+    renderAll(false);
+    syncTodayInBlock();
+  });
+
+  /* ================= progress rails ================= */
+  function renderRails() {
+    var blockTick = 0, blockTot = 0, termTick = 0, termTot = 0;
+    PLAN.forEach(function (b) {
+      b.days.forEach(function (_, i) {
+        var d = addDays(b.f, i);
+        if (d > b.t || d > t) return;
+        var k2 = iso(d);
+        if (b === now) { blockTot++; if (isTicked(k2)) blockTick++; }
+        termTot++; if (isTicked(k2)) termTick++;
+      });
+    });
+    var bp = blockTot ? Math.round(100 * blockTick / blockTot) : 0;
+    var tp = termTot ? Math.round(100 * termTick / termTot) : 0;
+    $('#pl-rails').innerHTML =
+      '<div class="pl-rail"><div class="rl-row"><span><b>This block</b> · objectives ticked so far</span><span>' +
+      blockTick + ' / ' + blockTot + '</span></div><div class="rl-track"><div class="rl-fill" style="width:' + bp + '%"></div></div></div>' +
+      '<div class="pl-rail"><div class="rl-row"><span><b>Whole term</b> · since ' + TERM_START + '</span><span>' +
+      termTick + ' / ' + termTot + '</span></div><div class="rl-track"><div class="rl-fill" style="width:' + tp + '%"></div></div></div>';
+  }
+
+  /* ================= sequence render ================= */
+  function renderBlocks() {
+    $('#pl-blocks').innerHTML = PLAN.map(function (b) {
+      var past = t > b.t, future = t < b.f, isNow = b === now;
+      var open = isNow || (!past && !future && false);
+      var ticked = 0, total = b.days.length;
+      b.days.forEach(function (_, i) {
+        var d = addDays(b.f, i); if (d > b.t) return;
+        if (d <= t && isTicked(iso(d))) ticked++;
+      });
+      var pct = total ? Math.round(100 * ticked / Math.min(total, Math.max(0, Math.round((Math.min(b.t, t) - b.f) / 86400000) + 1) || 1)) : 0;
+      var openAttr = isNow ? ' open' : '';
+      var cls = 'pl-block' + (isNow ? ' is-now' : '') + (past ? ' is-past' : '');
+      var s1 = '<summary>' +
+        '<div class="pl-bsum1"><span class="pl-w">' + esc(b.w) + '</span>' +
+        '<span class="pl-dates">' + nice(b.f) + ' - ' + nice(b.t) + '</span>' +
+        (isNow ? '<span class="pl-nowpill">this block</span>' : '') +
+        (past ? '<span class="pl-donepct">done ' + ticked + '</span>' : '') +
+        '</div>' +
+        '<div class="pl-focus">' + esc(b.focus) + (b.due ? ' <span class="due">⏰ ' + esc(b.due.t) + ' · due ' + esc(b.due.d) + '</span>' : '') + '</div>' +
+        '</summary>';
+
+      var col = function (h, items) {
+        return '<div class="pl-col"><h3>' + h + '</h3><ul>' + items.map(function (it) {
+          var due = it.d ? ' <span class="due">(due ' + esc(it.d) + ')</span>' : '';
+          var tx = it.a ? '<a href="' + esc(it.a) + '">' + esc(it.t) + '</a>' : esc(it.t);
+          return '<li>' + tx + due + '</li>';
+        }).join('') + '</ul></div>';
+      };
+
+      var days = '<div class="pl-days"><div class="dh">Daily objectives</div>' + b.days.map(function (txt, i) {
+        var d = addDays(b.f, i);
+        if (d > b.t) return '';
+        var di = iso(d), done = isTicked(di);
+        var cl = 'pl-day' + (di === iso(t) ? ' is-today' : '') + (d < t && di !== iso(t) ? ' is-past' : '') + (done ? ' is-done' : '');
+        var isDue = b.due && b.due.d === di;
+        return '<div class="' + cl + '" data-day="' + di + '">' +
+          '<input type="checkbox" data-k="' + di + '"' + (done ? ' checked' : '') + '>' +
+          '<span class="pl-when">' + nice(d) + '</span>' +
+          '<span class="pl-what">' + (isDue ? '<span class="pl-dueflag">⏰ </span>' : '') + esc(txt) + '</span>' +
+          '</div>';
+      }).join('') + '</div>';
+
+      return '<details class="' + cls + '"' + openAttr + '>' + s1 +
+        '<div class="pl-bbody"><div class="pl-btrack"><div class="pl-bfill" style="width:' + Math.min(100, isNow || past ? pct : 0) + '%"></div></div>' +
+        '<div class="pl-cols">' + col('Read', b.read) + col('Produce / submit', b.ship) + col('Do', b.dos) + '</div>' +
+        days + '</div></details>';
+    }).join('');
+  }
+
+  /* block checkboxes */
+  document.getElementById('pl-blocks').addEventListener('change', function (e) {
+    var box = e.target;
+    if (!box || box.type !== 'checkbox' || !box.getAttribute('data-k')) return;
+    setTicked(box.getAttribute('data-k'), box.checked);
+    renderAll(false);
+    if (box.getAttribute('data-k') === iso(t)) syncHeroFromBlock();
+  });
+
+  function syncHeroFromBlock() {
+    var c = $('#today-check'); c.checked = isTicked(iso(t));
+    $('#pl-today').classList.toggle('is-done', c.checked);
+  }
+  function syncTodayInBlock() {
+    var row = document.querySelector('.pl-day[data-day="' + iso(t) + '"]');
+    if (!row) return;
+    var done = isTicked(iso(t));
+    row.classList.toggle('is-done', done);
+    var box = row.querySelector('input'); if (box) box.checked = done;
+  }
+
+  function renderAll(renderNext) {
+    renderRails();
+    renderBlocks();
+  }
+
+  /* ================= live "next up" ================= */
+  function nextUp() {
+    var panel = $('#pl-next');
+    var api = (typeof API_URL !== 'undefined') ? API_URL : '';
+    if (!api) return;
+    fetch(api + '?action=events').then(function (r) { return r.json(); }).then(function (j) {
+      var evs = (j && j.events) || [];
+      var ahead = evs.filter(function (e) { return e.date && toD(e.date) >= t; })
+        .sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(0, 4);
+      if (!ahead.length) return;
+      $('#pl-nextgrid').innerHTML = ahead.map(function (e) {
+        var d = toD(e.date);
+        return '<div class="pl-ev"><div class="pe-d">' + nice(d) + (e.type ? ' · ' + esc(e.type) : '') + '</div>' +
+          '<div class="pe-t">' + esc(e.title || '') + '</div>' +
+          (e.note ? '<div class="pe-n">' + esc(e.note) + '</div>' : '') + '</div>';
+      }).join('');
+      panel.hidden = false;
+    }).catch(function () { /* silent: planner works without the live strip */ });
+  }
+
+  renderAll(true);
+  syncHeroFromBlock();
+  nextUp();
+})();
+</script>
+</body>
+</html>

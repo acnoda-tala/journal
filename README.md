@@ -429,6 +429,30 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
+### 2026-09-19 - v2.8 "The study desk"
+- **New page: `planner.html`** - "Study planner.", built from the course guide's
+  milestone calendar (digest #weeks). One objective for **every day of the term**
+  (116 days, Aug 31 - Dec 18): orientation and Prologue/Ch 1, the three TMA pushes
+  (27 Sep / 25 Oct / 22 Nov), forum-sprint blocks (5 reactions x3), forum close
+  (29 Nov), journal + RSP finals (06 Dec), a respit-and-review week for the final
+  exam, and the reflection vlog (18 Dec).
+- **Today card** shows today's dated objective; ticking it saves to
+  `localStorage` (`tala_plan_<date>`), syncs with the day rows, and earns the
+  footer's **progress rails** (this block / whole term, against days elapsed).
+- Every block is a card you can unfold: **Read / Produce-Submit / Do** columns
+  (with digest deep-links) plus its dated day rows with tick boxes; DUE days are
+  flagged. The hero shows today, the block in session, and a **countdown to the
+  nearest deadline**. A "shape of my week" note explains the Mon-Fri evening +
+  Saturday long-block rhythm (asks for a day of rest on Sundays).
+- **No backend change.** The page self-reads the same public events feed for a
+  "Next up in the calendar" strip (falls back silent on failure).
+- All dates anchor to `TERM_START = '2026-08-31'` plus per-block `from/to` at the
+  top of planner.html - one comment explains how to shift them if the guide moves.
+- Journal + Digest **footers now link Planner** ("Digest · Planner · Admin").
+- Files touched: `planner.html` (NEW), `index.html`, `course.html`, `README.md`.
+- Install: PART A with the touched files (planner.html is new - make sure it
+  lands at repo root, next to index.html).
+
 ### 2026-09-19 - v2.7 "Speed and the smooth"
 - **The 404 logout, dissected.** Live site was serving a STALE MIX of files (admin.js /
   journal.js / calendar.js / admin.html / course.html were several versions behind the
