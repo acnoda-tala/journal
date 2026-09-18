@@ -37,20 +37,40 @@
     toastTimer = setTimeout(() => { t.className = 'toast'; }, 2800);
   }
 
-  /* ---------- API ---------- */
+  /* ---------- API ----------
+     Google occasionally answers a live /exec with a stray 404 or a
+     slow edge (a few seconds after a deploy, or a shaky connection).
+     Those SHOULD clear on their own, so we retry quietly before
+     showing any error - and you are never signed out over a hiccup. */
+  const RETRYABLE_HTTP = /HTTP (404|408|409|425|429|500|502|503|504)/;
+  const wait_ = ms => new Promise(r => setTimeout(r, ms));
+
+  async function fetchJsonWithRetry_(url, opts) {
+    let lastErr;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (err) {
+        lastErr = err;
+        const retriable = RETRYABLE_HTTP.test(err.message) || /Failed to fetch|NetworkError|Load failed/i.test(err.message);
+        if (!retriable || i === 2) break;
+        await wait_(600 * (i + 1));
+      }
+    }
+    throw lastErr;
+  }
+
   async function apiGet(params) {
-    const res = await fetch(API + '?' + new URLSearchParams(params));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+    return fetchJsonWithRetry_(API + '?' + new URLSearchParams(params));
   }
   async function apiPost(payload) {
-    const res = await fetch(API, {
+    return fetchJsonWithRetry_(API, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
   }
 
   function setConn(ok, label) {
@@ -78,7 +98,10 @@
       entries = (data.entries || []).filter(e => !isSettingsEntry_(e));
       showDashboard();
     } catch (err) {
-      $('#login-error').textContent = 'Could not sign in - check your key and your API_URL. (' + err.message + ')';
+      const hint404 = /HTTP 404/.test(err.message)
+        ? ' Google sometimes answers a stray 404 right after a deploy or on a slow line - wait 30 seconds and press Open the desk again.'
+        : '';
+      $('#login-error').textContent = 'Could not sign in - check your key. (' + err.message + ')' + hint404;
     } finally {
       $('#login-btn').disabled = false;
     }

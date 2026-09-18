@@ -42,9 +42,14 @@
     ['hero_note',   'hero-note',       'quill'],
     ['signature',   'hero-signature',  'plain'],
     ['rail_quote',  'rail-quote',      'plain'],
+    ['about_who',   'about-who',       'plain'],
     ['about_role',  'about-role',      'rich'],
     ['about_text',  'about-text',      'rich'],
     ['footer_text', 'footer-text',     'rich'],
+    ['footer_req_text', 'footer-req',  'rich'],
+    ['footer_ai_text',  'footer-ai',   'rich'],
+    ['calendar_title',  'cal-title',   'plain'],
+    ['calendar_sub',    'cal-sub',     'rich'],
   ];
 
   function renderSocials(sel, s) {

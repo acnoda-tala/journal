@@ -30,6 +30,8 @@ else is copy-paste.
 
 **Pending on Arnold's side** (one sitting, about 10 minutes):
 1. Upload the changed files to GitHub (see 🔁 Installing every update, PART A).
+   ⚠️ Upload the WHOLE `journal/` folder every time. Cherry-picking files leaves the
+   live site on a stale mix of versions - that mix caused the 404 logout scare in v2.7.
 2. Paste the newest `apps-script/Code.gs` into Apps Script, re-apply `ADMIN_KEY` and
    `SITE_URL`, deploy a **New version**, approve the Drive permission (PART B).
 3. In the Apps Script editor, run `importDevCalendar` **once** (fills the calendar;
@@ -410,6 +412,39 @@ You asked to be able to start fresh chats anytime. Do this:
 ## 📝 Maintenance Log
 
 *(newest first - updated on every change)*
+
+### 2026-09-19 - v2.7 "Speed and the smooth"
+- **The 404 logout, dissected.** Live site was serving a STALE MIX of files (admin.js /
+  journal.js / calendar.js / admin.html / course.html were several versions behind the
+  workspace - cherry-picked file uploads). Backend itself verified ALIVE the whole time
+  (ping answered `{"ok":true …}`). Google's /exec also occasionally answers a live
+  deployment with a stray 404 on slow lines, so:
+  - `admin.js` + `calendar.js` now **retry quietly (3 attempts, backoff)** on
+    HTTP 404/408/409/425/429/5xx and network hiccups before showing any error -
+    and a remembered key is never dropped over a transient failure.
+  - The login error explains the 404-after-deploy case and asks you to press once more.
+- **Real speed work:**
+  - Calendar now paints **instantly from a localStorage cache** (`tala_events_cache`)
+    and refreshes live after; a failed refresh keeps the cached copy instead of a dead
+    end. Edits update the cache immediately.
+  - `preconnect` hints for script.google.com + script.googleusercontent.com on all pages.
+  - `content-visibility: auto` on the long digest sections.
+- **Smooth, light animations** (transform/opacity only, cheap one-time plays; the global
+  prefers-reduced-motion rule already zeroes them): staggered hero entrance, entry cards
+  rising in, gentle card hover lift, view fade-ins, calendar cell hover, reader settle.
+- **Editing coverage widened ("all parts")**: new editable zones - About-card name,
+  calendar page title + intro, footer course-requirement statement, footer AI
+  disclosure, digest kicker/headline/lede. They flow through the same Site settings
+  storage (native tab, carrier fallback). `course.html` now self-applies them with a
+  small inline loader (no extra files). The digest's seven chapters stay in
+  course.html by design (reference material).
+- `markdown.js` links now accept relative paths (`[admin desk](admin.html)`);
+  `javascript:`/`data:` protocols are stripped.
+- Files touched: `index.html`, `course.html`, `admin.html`, `assets/js/config.js`,
+  `assets/js/journal.js`, `assets/js/admin.js`, `assets/js/calendar.js`,
+  `assets/js/markdown.js`, `assets/css/style.css`, `README.md`.
+- **No backend change.** Install: upload the whole `journal/` folder (PART A) - do not
+  cherry-pick files; mixing old and new versions is exactly what caused the 404 logout.
 
 ### 2026-09-19 - v2.6 "No borrowed links"
 - **Removed the public links to the course pack** (textbook PDF, DevCom Primer, scrapbook

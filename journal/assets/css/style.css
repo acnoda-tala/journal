@@ -1256,3 +1256,57 @@ img.media-inline { max-width: 100%; height: auto; border-radius: 8px; vertical-a
 }
 .remember-row input { width: auto; margin-top: 3px; accent-color: var(--maroon); }
 .remember-row em { display: block; font-style: normal; font-size: .74rem; color: var(--ink-faint); }
+
+/* ==========================================================================
+   SPEED + SMOOTH (v2.7)
+   GPU-only motion (transform + opacity). The site already paints from
+   localStorage instantly: these are the finishing touches, never blockers.
+   The global reduced-motion rule above zeroes all of this when asked.
+   ========================================================================== */
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* hero enters once, small stagger */
+.hero > *:not(.social-row):not(.social-row *) { animation: rise-in .5s cubic-bezier(.2,.7,.25,1) both; }
+.hero > *:nth-child(2) { animation-delay: .06s; }
+.hero > *:nth-child(3) { animation-delay: .12s; }
+.hero > *:nth-child(4) { animation-delay: .18s; }
+.hero > *:nth-child(5) { animation-delay: .24s; }
+.hero > *:nth-child(6) { animation-delay: .30s; }
+.hero > *:nth-child(7) { animation-delay: .34s; }
+
+/* entries rise in as they are painted; hover lifts gently */
+.entry-card {
+  animation: rise-in .4s cubic-bezier(.2,.7,.25,1) both;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.entry-card:nth-child(2) { animation-delay: .05s; }
+.entry-card:nth-child(3) { animation-delay: .10s; }
+.entry-card:nth-child(4) { animation-delay: .15s; }
+.entry-card:nth-child(5) { animation-delay: .20s; }
+.entry-card:nth-child(6) { animation-delay: .25s; }
+.entry-card:hover { transform: translateY(-3px); box-shadow: 0 12px 34px -20px rgba(27,27,27,.4); }
+
+/* smooth switching between journal / calendar / reader views */
+#journal-view:not(.hidden), #calendar-view:not(.hidden), #reader-view:not(.hidden) {
+  animation: fade-in .28s ease both;
+}
+
+/* calendar cells feel alive without any cost */
+.cal-day { transition: background .12s ease; }
+.ev-pill { transition: opacity .12s ease; }
+.cal-day:hover .ev-pill { opacity: .85; }
+
+/* reader content settles in */
+.reader-body > * { animation: fade-in .35s ease both; }
+.reader h1.title { animation: rise-in .4s cubic-bezier(.2,.7,.25,1) both; }
+
+/* figures ease in as they appear */
+.media-figure img, .pdf-embed, .video-embed { animation: fade-in .35s ease both; }
+
+/* cheaper rendering for long pages (progressive enhancement only) */
+.dsec { content-visibility: auto; contain-intrinsic-size: 1px 700px; }

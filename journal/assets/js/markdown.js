@@ -153,9 +153,12 @@ function mdInline(s) {
   // images & media first: ![alt](url)
   s = s.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g,
     (m, alt, url) => mediaInlineHtml_(classifyMedia_(alt, url)));
-  // links: [text](url)
-  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // links: [text](url) - absolute or relative; dangerous protocols dropped
+  s = s.replace(/\[([^\]]+)\]\(([^()\s]+)\)/g, (m, t, url) => {
+    if (/^(?:javascript|data|vbscript):/i.test(url)) return t;
+    const ext = /^https?:\/\//i.test(url) ? ' target="_blank" rel="noopener"' : '';
+    return '<a href="' + url + '"' + ext + '>' + t + '</a>';
+  });
   // bold then italic then inline code
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
