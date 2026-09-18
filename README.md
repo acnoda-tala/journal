@@ -30,8 +30,9 @@ else is copy-paste.
 
 **Pending on Arnold's side** (one sitting, about 10 minutes):
 1. Upload the changed files to GitHub (see 🔁 Installing every update, PART A).
-   ⚠️ Upload the WHOLE `journal/` folder every time. Cherry-picking files leaves the
-   live site on a stale mix of versions - that mix caused the 404 logout scare in v2.7.
+   ⚠️ Upload the folder CONTENTS, never the `journal` folder itself (nested-folder
+   mistake, found live 2026-09-19), and don't cherry-pick either (that mixed old and
+   new versions and caused the 404 logout scare).
 2. Paste the newest `apps-script/Code.gs` into Apps Script, re-apply `ADMIN_KEY` and
    `SITE_URL`, deploy a **New version**, approve the Drive permission (PART B).
 3. In the Apps Script editor, run `importDevCalendar` **once** (fills the calendar;
@@ -56,13 +57,27 @@ do PART B only when the Maintenance Log entry says the **backend** changed
 
 1. Open https://github.com/acnoda-tala/journal and **sign in**.
 2. Click **Add file → Upload files**.
-3. From the downloaded workspace, drag in **exactly the files listed under
-   "Files touched"** in the newest Maintenance Log entry.
-   (Keep the paths identical: `assets/js/…` files must replace the same paths.)
+3. From the downloaded workspace, upload **exactly the files listed under
+   "Files touched"** in the newest Maintenance Log entry - or for a full refresh,
+   everything at once.
+   ⚠️ **DRAG THE CONTENTS, NEVER THE FOLDER.** Open the `journal` folder on your
+   computer, select what's inside (Ctrl+A), and drag the SELECTED ITEMS into the
+   upload area. Dragging the *folder itself* creates a nested `journal/` folder
+   inside the repo - GitHub happily commits it, and your live site keeps serving
+   the old files (this exact thing happened in v2.7). Before committing, read
+   the file list: every path should start like `admin.html` or `assets/js/…`,
+   NEVER `journal/admin.html`.
+   (Keep the paths identical: `assets/js/…` files must replace the same paths.
+   Never include `_sources/`.)
 4. Check the list shows the right file names, then click **Commit changes**
    (message suggestion: `v2.x - <the log entry title>`).
 5. Wait 1-2 minutes for GitHub Pages to rebuild, then hard-refresh the site
    (Ctrl+Shift+R / Cmd+Shift+R) to see it live.
+
+**If the site didn't change after uploading:** look at your repo's main page.
+If you see a folder called **`journal`** there next to `admin.html`, open it,
+click **⋯ (three dots, top right) → Delete folder → Commit changes**, and redo
+PART A selecting the *contents* of your local folder.
 
 ### PART B - update the backend (only when Code.gs is listed)
 
@@ -368,7 +383,8 @@ Dec 18).
 
 | Symptom | Fix |
 |---|---|
-| **Site is plain text, no design; calendar stuck on "Drawing…"; banner and sections all visible at once** | Your `assets` folder did not upload (very common with web upload). Repo page must show an `assets` folder containing `css/style.css` and `js/` (6 files). Re-upload by dragging the **folder itself**. Also make sure an empty file named `.nojekyll` exists in the repo root (create via Add file → Create new file). Wait 1-2 min, hard-refresh (Ctrl+Shift+R). |
+| **Site didn't change at all after "Upload files"; repo shows a folder called `journal`** | The folder itself got uploaded instead of its contents, nesting everything as `journal/journal/...`. Open the `journal` folder in the repo → **⋯ → Delete folder** → Commit. Redo PART A: open your local folder, Ctrl+A to select its **contents**, and drag those items (not the folder). |
+| **Site is plain text, no design; calendar stuck on "Drawing…"; banner and sections all visible at once** | Your `assets` folder did not upload (very common with web upload). Repo page must show an `assets` folder containing `css/style.css` and `js/` (6 files). Re-upload `assets` (dragging that inner folder by name is fine). Also make sure an empty file named `.nojekyll` exists in the repo root (create via Add file → Create new file). Wait 1-2 min, hard-refresh (Ctrl+Shift+R). |
 | **GitHub Pages serves a "theme" instead of your design** (blue GitHub-style links, wrong CSS) | A Jekyll theme got attached. The empty `.nojekyll` file in the repo root disables Jekyll completely - our plain HTML is then served as-is. If `_config.yml` exists in your repo (from picking a theme), you can also delete it. |
 | Site shows the **demo banner & sample entries** | `API_URL` in `config.js` is empty or wrong - redo Part 3. |
 | **"Couldn't reach your backend"** | Deployment access wasn't **Anyone** → Manage deployments → ✎ → set access → **New version** → Deploy. Or you edited Code.gs without a new version. |
@@ -440,6 +456,11 @@ You asked to be able to start fresh chats anytime. Do this:
   course.html by design (reference material).
 - `markdown.js` links now accept relative paths (`[admin desk](admin.html)`);
   `javascript:`/`data:` protocols are stripped.
+- **Post-ship trims (Arnold's call, same day):** removed the "set in Fraunces & Archivo
+  · entries and calendar in Google Sheets · served by Apps Script · hosted on GitHub
+  Pages" tech line from both footers (kept the padagos! signature + nav); removed the
+  "IO III, Bicol University" line from both sidebars (kept name, DevCom student UPOU,
+  and the DEVC 202 line). `admin.html` had neither; no new settings keys.
 - Files touched: `index.html`, `course.html`, `admin.html`, `assets/js/config.js`,
   `assets/js/journal.js`, `assets/js/admin.js`, `assets/js/calendar.js`,
   `assets/js/markdown.js`, `assets/css/style.css`, `README.md`.
