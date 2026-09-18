@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Admin · Tala - Arnold C. Noda</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle' fill='%23E3B84C'%3E%E2%9C%8E%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============= ADMIN SHELL: same left rail as the site ============= -->
+<aside class="rail">
+  <a class="wordmark" href="index.html">
+    <span class="star">✎</span>
+    <span>
+      <span class="name">TALA</span>
+      <span class="sub">admin desk · arnold</span>
+    </span>
+  </a>
+
+  <nav class="rail-nav">
+    <a href="admin.html" class="is-active"><span class="icon">✎</span> Entries</a>
+    <a href="index.html#/calendar"><span class="icon">◴</span> Calendar</a>
+    <a href="course.html"><span class="icon">✦</span> Course digest</a>
+    <a href="index.html"><span class="icon">←</span> View site</a>
+  </nav>
+
+  <div class="rail-quote">"write it simple. pass first to yourself, then to the tutor."</div>
+
+  <div class="rail-foot">
+    <b>Admin desk</b>
+    Changes are written straight to your Google Sheet via Apps Script.
+  </div>
+</aside>
+
+<div class="main">
+<div class="admin-shell">
+
+  <!-- ============ LOGIN ============ -->
+  <div class="panel login-card" id="login-card">
+    <div class="lock">✎</div>
+    <h1>The Admin Desk</h1>
+    <p>Enter your journal key to write, edit and publish entries.<br>
+    <span style="color:var(--ink-faint);font-size:.78rem">(the ADMIN_KEY you set in Code.gs)</span></p>
+    <div class="field">
+      <label for="key-input">Journal key</label>
+      <input type="password" id="key-input" placeholder="••••••••••••" autocomplete="current-password">
+    </div>
+    <label class="remember-row" for="remember-device">
+      <input type="checkbox" id="remember-device" checked>
+      <span>Keep me signed in on this device
+        <em>(on a shared computer, untick this)</em></span>
+    </label>
+    <button class="btn maroon" id="login-btn" style="width:100%;justify-content:center">Open the desk</button>
+    <p id="login-error" style="color:#a52929;font-size:.82rem;min-height:1.2em;margin:14px 0 0"></p>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="dashboard" class="hidden">
+
+    <div class="admin-topbar">
+      <h1>Entries</h1>
+      <div class="tab-group">
+        <button class="btn ghost small is-active" id="tab-entries">✎ Entries</button>
+        <button class="btn ghost small" id="tab-settings">⚙ Site settings</button>
+      </div>
+      <span id="conn-status"><span class="conn-dot"></span><span class="conn-label">checking…</span></span>
+      <div class="spacer"></div>
+      <a class="btn ghost small" href="index.html#/calendar">◴ Calendar</a>
+      <a class="btn ghost small" href="index.html" target="_blank">View site ↗</a>
+      <button class="btn ghost small" id="refresh-btn">⟳ Refresh</button>
+      <button class="btn gold small" id="logout-btn">Log out</button>
+      <button class="btn maroon" id="new-entry-btn">✎ New entry</button>
+    </div>
+
+    <!-- list view -->
+    <div class="panel" id="list-view">
+      <div class="panel-body" style="padding:8px 10px">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:34%">Title</th>
+              <th>Unit · Module</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="entries-tbody">
+            <tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:40px">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- site settings view -->
+    <div id="settings-view" class="hidden">
+      <div class="admin-topbar">
+        <h1>Site settings</h1>
+        <div class="spacer"></div>
+        <span style="color:var(--ink-faint);font-size:.8rem">Saved into your Google Sheet. Reload the site to see changes.</span>
+        <button class="btn green" id="save-settings-btn">Save site settings</button>
+      </div>
+
+      <div class="settings-grid">
+        <div class="panel">
+          <div class="panel-head">✦ The site</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="s-site_name">Site name</label>
+              <input type="text" id="s-site_name">
+            </div>
+            <div class="field">
+              <label for="s-rail_sub">Line under the name (left rail)</label>
+              <input type="text" id="s-rail_sub">
+            </div>
+            <div class="field">
+              <label for="s-hero_kicker">Small line above the big headline</label>
+              <input type="text" id="s-hero_kicker">
+            </div>
+            <div class="field">
+              <label for="s-hero_title">Big headline</label>
+              <textarea id="s-hero_title" rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-hero_lede">Welcome paragraph</label>
+              <textarea id="s-hero_lede" rows="5"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-hero_note">Margin note ("on the desk this week")</label>
+              <input type="text" id="s-hero_note">
+            </div>
+            <div class="field">
+              <label for="s-signature">Signature line</label>
+              <input type="text" id="s-signature">
+            </div>
+            <div class="hint">*italic* and **bold** work in the headline, paragraphs, and long texts. New lines are kept as you type them.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">▤ Sidebar &amp; footer</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="s-rail_quote">Quote on the left rail</label>
+              <input type="text" id="s-rail_quote">
+            </div>
+            <div class="field">
+              <label for="s-about_role">Role lines ("About the journal keeper")</label>
+              <textarea id="s-about_role" rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-about_text">About text</label>
+              <textarea id="s-about_text" rows="5"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-footer_text">Footer motto line</label>
+              <textarea id="s-footer_text" rows="4"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">↗ Social media</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="s-social_facebook">Facebook profile or page</label>
+              <input type="text" id="s-social_facebook" placeholder="https://facebook.com/…">
+            </div>
+            <div class="field">
+              <label for="s-social_instagram">Instagram</label>
+              <input type="text" id="s-social_instagram" placeholder="https://instagram.com/…">
+            </div>
+            <div class="field">
+              <label for="s-social_linkedin">LinkedIn</label>
+              <input type="text" id="s-social_linkedin" placeholder="https://www.linkedin.com/in/…">
+            </div>
+            <div class="field">
+              <label for="s-social_youtube">YouTube channel</label>
+              <input type="text" id="s-social_youtube" placeholder="https://www.youtube.com/@…">
+            </div>
+            <div class="field">
+              <label for="s-social_email">Email address</label>
+              <input type="text" id="s-social_email" placeholder="you@example.com">
+            </div>
+            <div class="hint">Paste the full address of each profile. Blank fields stay hidden. The links appear as pills on the home page and in the footer.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">▶ Intro video (plays on the home page)</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="s-intro_video">Video link</label>
+              <input type="text" id="s-intro_video" placeholder="YouTube, Google Drive, or .mp4 address">
+            </div>
+            <div class="field">
+              <label for="s-intro_video_title">Small heading above the video</label>
+              <input type="text" id="s-intro_video_title">
+            </div>
+            <div class="field">
+              <label for="s-intro_video_caption">Caption under the video</label>
+              <textarea id="s-intro_video_caption" rows="2"></textarea>
+            </div>
+            <div class="hint">A playable video player appears on the home page under your welcome text. Works with a YouTube link, a Google Drive video ("Share → anyone with the link"), or a direct .mp4 address. Leave the link blank and no video is shown. Your course vlog can live here in December.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:18px">
+        <button class="btn green" id="save-settings-btn-2">Save site settings</button>
+      </div>
+    </div>
+
+    <!-- editor view -->
+    <div id="editor-view" class="hidden">
+      <div class="admin-topbar">
+        <h1 id="editor-heading">New entry</h1>
+        <div class="spacer"></div>
+        <button class="btn ghost small" id="cancel-edit-btn">← Back to list</button>
+        <button class="btn green" id="save-btn">Save entry</button>
+      </div>
+
+      <div class="editor-grid">
+        <div class="panel">
+          <div class="panel-head">✎ Write</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="f-title">Title</label>
+              <input type="text" id="f-title" placeholder="e.g. Reflections on the Communication Process">
+            </div>
+            <div class="field-row three">
+              <div class="field">
+                <label for="f-unit">Unit</label>
+                <select id="f-unit"></select>
+              </div>
+              <div class="field">
+                <label for="f-module">Module</label>
+                <select id="f-module"></select>
+              </div>
+              <div class="field">
+                <label for="f-category">Category</label>
+                <input list="category-list" id="f-category" placeholder="Reflection">
+                <datalist id="category-list"></datalist>
+                <div class="hint" style="margin-top:4px">Course entry? Pick its unit &amp; module. Just feeling like it? Choose <b>Personal Tala</b> and leave Module at 0.</div>
+              </div>
+            </div>
+            <div class="field-row three">
+              <div class="field">
+                <label for="f-date">Date</label>
+                <input type="date" id="f-date">
+              </div>
+              <div class="field">
+                <label for="f-tags">Tags <span style="font-weight:400;text-transform:none">(comma-separated)</span></label>
+                <input type="text" id="f-tags" placeholder="participation, media, quebral">
+              </div>
+              <div class="field">
+                <label for="f-status">Status</label>
+                <select id="f-status">
+                  <option value="draft">Draft - keep private</option>
+                  <option value="published">Published - on the site</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-content">Entry text <span style="font-weight:400;text-transform:none">(Markdown)</span></label>
+              <div class="md-toolbar">
+                <button data-md="**" data-wrap="1"><b>B</b></button>
+                <button data-md="*" data-wrap="1"><i>Italics</i></button>
+                <button data-md="### " data-line="1">Heading</button>
+                <button data-md="> " data-line="1">❝ Quote</button>
+                <button data-md="- " data-line="1">• List</button>
+                <button data-md="---" data-block="1">― Rule</button>
+                <button id="md-marginalia" title="Wrap selection as a handwritten margin note">✎ Margin note</button>
+                <span class="md-sep"></span>
+                <button id="md-upload" title="Upload a photo, graph, PDF, audio, video or any file - it lands in the TALA Media folder in your Google Drive">⬆ Upload file</button>
+                <button id="md-imglink" title="Insert an image from a web address">⧉ Image link</button>
+                <button id="md-video" title="Embed a YouTube, Google Drive, or .mp4 video">▶ Video</button>
+                <button id="md-audio" title="Embed an audio player (.mp3, .m4a)">♫ Audio</button>
+                <button id="md-pdflink" title="Embed a PDF reader (Drive or .pdf link)">▤ PDF link</button>
+                <input type="file" id="media-file" accept="image/*,audio/*,video/*,application/pdf,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.csv,.zip" hidden>
+              </div>
+              <textarea id="f-content" rows="16" placeholder="Write your entry here…
+
+### Use headings like this
+Use **bold**, *italic*, > quotes, and - lists."></textarea>
+              <div class="hint">Tip: leave the excerpt blank and it will be written automatically from your first paragraph.</div>
+              <div class="hint">
+                <b>Media:</b> ⬆ uploads any file - photos, graphs, PDFs, audio, video (files live in
+                "TALA Media" in your Google Drive). <b>PDFs show inside the entry with a full page
+                reader</b>: uploaded PDFs get Drive's viewer, and ▤ PDF link does the same for web links.
+                Word/Excel/other files show as an open/download card.
+                ⧉ image from a link · ▶ YouTube/Drive/.mp4 video player · ♫ audio player.
+                Whatever you type as the caption appears in the live preview.
+                Big videos (your course vlog) belong on YouTube or Drive first - use ▶ Video then.
+              </div>
+            </div>
+            <div class="field">
+              <label for="f-excerpt">Excerpt <span style="font-weight:400;text-transform:none">(optional)</span></label>
+              <textarea id="f-excerpt" rows="2" placeholder="One or two sentences shown on the journal home page…" style="font-family:var(--sans)"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel preview-pane">
+          <div class="panel-head">◉ Live preview</div>
+          <div class="panel-body" id="preview-body">
+            <span class="placeholder">Your entry will preview here as you write…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/markdown.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
