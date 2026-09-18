@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TALA ni Arnold · The Learning Journal of Arnold C. Noda</title>
+<meta name="description" content="Tala - notes on development, communication and social change. The DEVC 202 learning journal of Arnold C. Noda, DevCom student, UP Open University.">
+<meta name="author" content="Arnold C. Noda">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TALA ni Arnold · The Learning Journal of Arnold C. Noda">
+<meta property="og:description" content="Notes on development, communication and social change. A DEVC 202 journal from Legazpi, beside Mayon and the sea.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TALA ni Arnold · Arnold C. Noda">
+<meta name="twitter:description" content="Notes on development, communication and social change.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="reader-progress" class="hidden"><i id="reader-progress-bar"></i></div>
+
+<!-- ================= PERMANENT LEFT SIDEBAR ================= -->
+<aside class="rail">
+  <a class="wordmark" href="#/">
+    <span class="star">✦</span>
+    <span>
+      <span class="name" id="site-name">TALA</span>
+      <span class="sub hand" id="rail-sub">ni arnold</span>
+    </span>
+  </a>
+
+  <nav class="rail-nav">
+    <a href="#/" data-view="journal" class="is-active"><span class="icon">✎</span> Journal</a>
+    <a href="#/calendar" data-view="calendar"><span class="icon">◴</span> Calendar</a>
+    <a href="course.html"><span class="icon">✦</span> Course digest</a>
+    <a href="admin.html"><span class="icon">⚿</span> Admin desk</a>
+  </nav>
+
+  <div class="rail-mid">
+    <div class="rail-label">Journal</div>
+    <div id="rail-units"></div>
+
+    <div class="rail-label" style="margin-top:20px">Modules</div>
+    <div class="rail-scroll" id="rail-modules"></div>
+
+    <div class="rail-label" style="margin-top:20px">Fresh ink</div>
+    <div id="rail-recent"></div>
+  </div>
+
+  <div class="rail-quote" id="rail-quote">"no press release here. just the harder questions."</div>
+
+  <div class="rail-foot">
+    <b>Arnold C. Noda</b>
+    IO III, Bicol University<br>
+    DevCom student, UPOU<br>
+    DEVC 202 · 1S 2026-2027
+  </div>
+</aside>
+
+<div class="main">
+
+  <!-- ================= JOURNAL VIEW ================= -->
+  <div id="journal-view">
+    <div class="page">
+      <section class="hero">
+        <div class="kicker" id="hero-kicker">DEVC 202 · Development Communication Concepts &amp; Approaches</div>
+        <h1 id="hero-title">Notes on <em>development</em>, <em>communication</em>, and social change.</h1>
+        <p class="lede" id="hero-lede">
+          In Filipino, <strong>tala</strong> means two things: a note, and a star.
+          This journal will be both. By day I write news for <strong>Bicol University</strong>.
+          By night I study <strong>Development Communication</strong> at the
+          <strong>University of the Philippines Open University</strong>. This is where the two meet.
+          No press release here. Just one man, his readings, and the questions he cannot shake off.
+        </p>
+        <div class="hero-meta">
+          <div><b id="stat-entries">0</b>journal entries</div>
+          <div><b id="stat-modules">0 / 13</b>modules covered</div>
+          <div><b>3</b>units · development, communication, devcom</div>
+        </div>
+        <span class="signature" id="hero-signature">padagos! ✎ arnold c. noda</span>
+        <div class="social-row hidden" id="hero-socials"></div>
+        <div class="marginalia" style="max-width:460px" id="hero-note">✎ on the desk this week: Ongkiko &amp; Flor, Chapter 3. What is development, really?</div>
+      </section>
+
+      <!-- intro video slot: stays empty unless you set one in the admin's Site settings -->
+      <div id="intro-video-slot"></div>
+
+      <div class="demo-banner hidden" id="demo-banner">
+        <div class="inner">
+          ✎ <b>Demo mode.</b> You're seeing the built-in sample entries. Connect your Google
+          Sheet backend to publish your own. See <b>README.md</b>, Part 2 (about 10 minutes).
+        </div>
+      </div>
+
+      <main class="layout">
+        <aside class="sidebar">
+          <div class="panel about-card" id="about">
+            <div class="panel-head">✦ About the journal keeper</div>
+            <div class="panel-body">
+              <div class="seal-row">
+                <div class="seal-dot">✎</div>
+                <div>
+                  <div class="who">Arnold C. Noda</div>
+                  <div class="role" id="about-role">Information Officer III, Bicol University CPRO<br>DevCom student, UP Open University · 1S 2026-2027</div>
+                </div>
+              </div>
+              <span id="about-text">I write news by day: champions, board passers, ribbon cuttings. I read DevCom
+              by night. This journal keeps the questions that good news cannot answer.
+              Writing from Legazpi, beside Mayon and the sea.</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">▤ Filter entries</div>
+            <div class="panel-body">
+              <div class="chip-cloud" id="unit-filters"></div>
+              <div style="height:12px"></div>
+              <div class="chip-cloud" id="category-filters"></div>
+            </div>
+          </div>
+
+          <div class="panel" id="course-map">
+            <div class="panel-head">☰ Course map · 13 modules</div>
+            <div class="panel-body" id="course-map-body"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">✦ Course sources</div>
+            <div class="panel-body">
+              <ul class="sources-list" id="sources-list"></ul>
+            </div>
+          </div>
+        </aside>
+
+        <section>
+          <div class="entries-head">
+            <h2 id="entries-heading">All entries</h2>
+            <span class="count-pill" id="count-pill">0</span>
+            <span class="cache-note hidden" id="cache-note">offline copy · will refresh when online</span>
+            <div class="search-box">
+              <input type="search" id="search" placeholder="Search this journal… ( / )" aria-label="Search entries">
+            </div>
+          </div>
+          <div class="entry-grid" id="entry-grid">
+            <div class="skel-card"><div class="skel-line w40"></div><div class="skel-line w80 skel-title"></div><div class="skel-line w95"></div><div class="skel-line w60"></div></div>
+            <div class="skel-card"><div class="skel-line w40"></div><div class="skel-line w70 skel-title"></div><div class="skel-line w95"></div><div class="skel-line w50"></div></div>
+            <div class="skel-card"><div class="skel-line w40"></div><div class="skel-line w75 skel-title"></div><div class="skel-line w90"></div><div class="skel-line w55"></div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= CALENDAR VIEW ================= -->
+  <main id="calendar-view" class="hidden">
+    <div class="page cal-page">
+      <div class="cal-title-row">
+        <h1>My calendar</h1>
+      </div>
+      <p class="cal-sub">
+        Deadlines, activities, readings, and everything else this semester throws at me.
+        <b>Red</b> is a deadline, <b>gold</b> is a TMA, <b>green</b> is an activity,
+        <b>gray</b> is personal. Sign in at the <a href="admin.html">admin desk</a> to add your own.
+      </p>
+      <div id="calendar-root">
+        <div class="loading-wrap"><span class="quill">◴</span><br>Drawing the calendar…</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= READER VIEW ================= -->
+  <main class="reader hidden" id="reader-view"></main>
+
+  <!-- ================= COLOPHON ================= -->
+  <footer class="site-footer simple">
+    <div class="fine-wrap">
+      <div class="fine-brand"><span class="f-star">✦</span> <b>TALA</b> <em class="f-ni">ni arnold</em>
+        <span class="social-row hidden" id="footer-socials"></span>
+      </div>
+      <p class="fine-line" id="footer-text">A journal for DEVC 202, kept in public so I will remember what I promised
+      myself to become. Written in Legazpi City, where the sea is never far.</p>
+      <p class="fine-line">
+        <strong>A course requirement.</strong> This website is my learning journal for
+        <strong>DEVC 202: Development Communication Concepts and Approaches</strong>, published as a course
+        requirement (the journal itself carries 20% of the final grade) of the Master of Development
+        Communication program, University of the Philippines Open University, First Semester 2026-2027.
+        Unless a note says otherwise, every entry here is my own writing. The views on this site are mine
+        alone: they are not my employer&rsquo;s, and not my school&rsquo;s.
+      </p>
+      <p class="fine-line ai">
+        <strong>AI assistance, disclosed.</strong> This website was designed and built with the help of an
+        artificial intelligence assistant: the design, the code, the calendar, and the course digest were
+        drafted by AI under my direction. The journal entries themselves are chosen, written, edited, and
+        approved by me.
+      </p>
+      <div class="fine-legal">
+        <span class="foot-sig">padagos! · arnold c. noda</span>
+        <span>set in Fraunces &amp; Archivo · entries and calendar in Google Sheets · served by Apps Script · hosted on GitHub Pages</span>
+        <span class="fine-links">
+          <a href="#/">Journal</a> · <a href="#/calendar">Calendar</a> ·
+          <a href="course.html">Digest</a> · <a href="admin.html">Admin ✎</a>
+          <a href="#" id="rss-link" class="hidden" target="_blank" rel="noopener">· RSS ➚</a>
+        </span>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/seed-data.js"></script>
+<script src="assets/js/markdown.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/journal.js"></script>
+</body>
+</html>
