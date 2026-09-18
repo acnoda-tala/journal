@@ -2,17 +2,30 @@
    TALA - admin desk logic
    Passcode → list all entries → create / edit / publish /
    draft / delete. Talks to the Google Apps Script backend.
-   Key is kept in sessionStorage only (clears on tab close).
+   The key is remembered on this device (localStorage) when
+   "Keep me signed in" is ticked; otherwise it lives in
+   sessionStorage and clears on tab close. Log out clears both.
    ========================================================= */
 
 (function () {
   const API = (JOURNAL_CONFIG.API_URL || '').trim();
   const $ = sel => document.querySelector(sel);
 
-  let KEY = sessionStorage.getItem('tala_key') || '';
+  let KEY = localStorage.getItem('tala_key') || sessionStorage.getItem('tala_key') || '';
   let entries = [];
   let editingId = null;
   let currentTab = 'entries';
+  let carrierEntry = null; // system entry that stores site settings on any backend
+
+  /* Site settings live in TWO places, newest backend first:
+     1) the native "Settings" tab (Code.gs v2.2+, needs your redeploy)
+     2) a hidden published "carrier" entry (works on ANY backend today).
+     The carrier is never shown on the site: journal.js filters it out. */
+  const SETTINGS_CARRIER_TITLE = '✦ TALA site settings (system entry - do not delete)';
+
+  function isSettingsEntry_(e) { return e && e.title === SETTINGS_CARRIER_TITLE; }
+  function parseJson_(t) { try { const j = JSON.parse(t); return (j && typeof j === 'object') ? j : null; } catch (e) { return null; } }
+  function hasSettingsValues_(o) { return !!o && Object.keys(o).some(k => String(o[k] || '').trim() !== ''); }
 
   /* ---------- toast ---------- */
   let toastTimer;
@@ -24,20 +37,40 @@
     toastTimer = setTimeout(() => { t.className = 'toast'; }, 2800);
   }
 
-  /* ---------- API ---------- */
+  /* ---------- API ----------
+     Google occasionally answers a live /exec with a stray 404 or a
+     slow edge (a few seconds after a deploy, or a shaky connection).
+     Those SHOULD clear on their own, so we retry quietly before
+     showing any error - and you are never signed out over a hiccup. */
+  const RETRYABLE_HTTP = /HTTP (404|408|409|425|429|500|502|503|504)/;
+  const wait_ = ms => new Promise(r => setTimeout(r, ms));
+
+  async function fetchJsonWithRetry_(url, opts) {
+    let lastErr;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (err) {
+        lastErr = err;
+        const retriable = RETRYABLE_HTTP.test(err.message) || /Failed to fetch|NetworkError|Load failed/i.test(err.message);
+        if (!retriable || i === 2) break;
+        await wait_(600 * (i + 1));
+      }
+    }
+    throw lastErr;
+  }
+
   async function apiGet(params) {
-    const res = await fetch(API + '?' + new URLSearchParams(params));
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
+    return fetchJsonWithRetry_(API + '?' + new URLSearchParams(params));
   }
   async function apiPost(payload) {
-    const res = await fetch(API, {
+    return fetchJsonWithRetry_(API, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return res.json();
   }
 
   function setConn(ok, label) {
@@ -54,11 +87,21 @@
       const data = await apiGet({ action: 'listAll', key });
       if (!data.ok) throw new Error(data.error || 'Wrong key');
       KEY = key;
-      sessionStorage.setItem('tala_key', key);
-      entries = data.entries;
+      if ($('#remember-device') && $('#remember-device').checked) {
+        localStorage.setItem('tala_key', key);
+        sessionStorage.removeItem('tala_key');
+      } else {
+        sessionStorage.setItem('tala_key', key);
+        localStorage.removeItem('tala_key');
+      }
+      carrierEntry = (data.entries || []).find(isSettingsEntry_) || null;
+      entries = (data.entries || []).filter(e => !isSettingsEntry_(e));
       showDashboard();
     } catch (err) {
-      $('#login-error').textContent = 'Could not sign in - check your key and your API_URL. (' + err.message + ')';
+      const hint404 = /HTTP 404/.test(err.message)
+        ? ' Google sometimes answers a stray 404 right after a deploy or on a slow line - wait 30 seconds and press Open the desk again.'
+        : '';
+      $('#login-error').textContent = 'Could not sign in - check your key. (' + err.message + ')' + hint404;
     } finally {
       $('#login-btn').disabled = false;
     }
@@ -199,14 +242,32 @@
   }
 
   async function loadRemoteSettings() {
+    // native Settings tab wins when it actually holds values
     try {
       const data = await apiGet({ action: 'settings' });
-      if (data.ok) fillSettingsForm(data.settings);
-      else fillSettingsForm({});
-    } catch (err) {
-      fillSettingsForm({});
-      toast('Could not load site settings - defaults shown. (Need the new Code.gs deployed?)', true);
+      if (data.ok && hasSettingsValues_(data.settings)) { fillSettingsForm(data.settings); return; }
+    } catch (err) { /* older backend without the settings action: fall through */ }
+    // hidden carrier entry (works with ANY backend version, no redeploy needed)
+    if (carrierEntry) {
+      const s = parseJson_(carrierEntry.content);
+      if (s && hasSettingsValues_(s)) { fillSettingsForm(s); return; }
     }
+    fillSettingsForm({});
+  }
+
+  async function saveSettingsViaCarrier_(settings) {
+    const payload = {
+      title: SETTINGS_CARRIER_TITLE,
+      unit: 'General', module: 0, category: 'System', date: '2019-01-01',
+      tags: 'system, settings', status: 'published',
+      excerpt: 'TALA site settings storage. Not a journal entry - please do not edit it by hand.',
+      content: JSON.stringify(settings),
+    };
+    const res = carrierEntry
+      ? await apiPost({ action: 'update', key: KEY, id: carrierEntry.id, entry: payload })
+      : await apiPost({ action: 'create', key: KEY, entry: payload });
+    if (!res.ok) throw new Error(res.error || 'save failed');
+    if (!carrierEntry) carrierEntry = { ...payload, id: res.id };
   }
 
   function collectSettings() {
@@ -222,16 +283,27 @@
     const btn = $('#save-settings-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Saving…';
+    const settings = collectSettings();
+    let saved = false;
+    let lastErr = '';
+
+    // 1) native Settings tab (new backend)
     try {
-      const res = await apiPost({ action: 'saveSettings', key: KEY, settings: collectSettings() });
-      if (!res.ok) throw new Error(res.error || 'save failed');
-      toast('✦ Site settings saved - reload the journal to see them');
-    } catch (err) {
-      toast('Error saving settings: ' + err.message, true);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Save site settings';
-    }
+      const res = await apiPost({ action: 'saveSettings', key: KEY, settings });
+      if (res.ok) saved = true;
+      else lastErr = res.error || 'save failed';
+    } catch (err) { lastErr = err.message; }
+
+    // 2) carrier entry (every backend). If native failed, this is the store.
+    //    If native succeeded and a carrier exists, keep it in sync quietly.
+    try {
+      if (!saved || carrierEntry) { await saveSettingsViaCarrier_(settings); saved = true; }
+    } catch (err) { if (!saved) lastErr = err.message; /* native already saved: ignore carrier glitch */ }
+
+    btn.disabled = false;
+    btn.textContent = 'Save site settings';
+    if (saved) toast('✦ Site settings saved - reload the journal to see them');
+    else toast('Error saving settings: ' + lastErr, true);
   }
 
   function collectForm() {
@@ -464,6 +536,7 @@
   $('#key-input').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('#login-btn').click(); });
 
   $('#logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('tala_key');
     sessionStorage.removeItem('tala_key');
     location.reload();
   });
@@ -487,7 +560,8 @@
     try {
       const data = await apiGet({ action: 'listAll', key: KEY });
       if (!data.ok) throw new Error(data.error);
-      entries = data.entries;
+      carrierEntry = (data.entries || []).find(isSettingsEntry_) || null;
+      entries = (data.entries || []).filter(e => !isSettingsEntry_(e));
       renderTable();
       setConn(true, 'connected to Google Sheet');
       if (currentTab === 'settings') loadRemoteSettings();

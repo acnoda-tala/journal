@@ -6,8 +6,8 @@ A personal learning journal for **DEVC 202 - Development Communication Concepts 
 Approaches** (Master of Development Communication, UP Open University, 1st Semester
 2026-2027), designed in the **University of the Philippines** visual language -
 UP Maroon `#7B1113`, UP Forest Green `#014421`, gold accents, academic serif type -
-with a personal field-notebook touch (handwritten margin notes, a signature, a
-*sablay*-inspired woven band).
+minimalist edition: white canvas, one maroon accent, a permanent left rail, with
+personal touches (handwritten margin notes, "ni arnold" in script, a Caveat signature).
 
 - **Front end (public):** `index.html` - the journal
 - **Front end (private):** `admin.html` - your writing desk
@@ -17,6 +17,73 @@ with a personal field-notebook touch (handwritten margin notes, a signature, a
 
 No frameworks, no build step, no npm. Three files to open in a browser; everything
 else is copy-paste.
+
+---
+
+## ⚡ Work state (last verified 2026-09-19)
+
+**Live addresses**
+- Journal: https://acnoda-tala.github.io/journal/
+- Admin desk: https://acnoda-tala.github.io/journal/admin.html
+- Course digest: https://acnoda-tala.github.io/journal/course.html
+- Backend (Apps Script, healthy): `https://script.google.com/macros/s/AKfycby…m6aSQ4/exec`
+
+**Pending on Arnold's side** (one sitting, about 10 minutes):
+1. Upload the changed files to GitHub (see 🔁 Installing every update, PART A).
+   ⚠️ Upload the WHOLE `journal/` folder every time. Cherry-picking files leaves the
+   live site on a stale mix of versions - that mix caused the 404 logout scare in v2.7.
+2. Paste the newest `apps-script/Code.gs` into Apps Script, re-apply `ADMIN_KEY` and
+   `SITE_URL`, deploy a **New version**, approve the Drive permission (PART B).
+3. In the Apps Script editor, run `importDevCalendar` **once** (fills the calendar;
+   last check of `/exec?action=events` returned 0 events).
+4. In the admin desk → ⚙ Site settings: fill the social media links (FB/IG/LinkedIn/email).
+
+**Verify after**: open the journal (entries + your texts), the calendar (19 events),
+and try a photo upload in the editor. Curl health check:
+`curl -sL "…/exec?action=ping"` should answer `{"ok":true,…}`.
+
+**Current version: v2.5.** Details per version in the Maintenance Log at the bottom.
+
+---
+
+## 🔁 Installing every update (THE checklist)
+
+Every version of TALA ends with the same routine. Do PART A every time files change;
+do PART B only when the Maintenance Log entry says the **backend** changed
+(Code.gs); do PART C always.
+
+### PART A - put the new files on GitHub (about 4 minutes)
+
+1. Open https://github.com/acnoda-tala/journal and **sign in**.
+2. Click **Add file → Upload files**.
+3. From the downloaded workspace, drag in **exactly the files listed under
+   "Files touched"** in the newest Maintenance Log entry.
+   (Keep the paths identical: `assets/js/…` files must replace the same paths.)
+4. Check the list shows the right file names, then click **Commit changes**
+   (message suggestion: `v2.x - <the log entry title>`).
+5. Wait 1-2 minutes for GitHub Pages to rebuild, then hard-refresh the site
+   (Ctrl+Shift+R / Cmd+Shift+R) to see it live.
+
+### PART B - update the backend (only when Code.gs is listed)
+
+1. Open https://script.google.com → your TALA project.
+2. In the editor, select ALL of `Code.gs` (Ctrl+A) and paste the newest
+   `apps-script/Code.gs` over it.
+3. **Re-apply your two personal lines at the top**: your `ADMIN_KEY` (your journal
+   key, don't leave `CHANGE-ME-first`) and `SITE_URL`
+   (`https://acnoda-tala.github.io/journal/`).
+4. Click **Save** (disk icon).
+5. **Deploy → Manage deployments → ✎ (pencil) → Version: New version → Deploy.**
+   The web app address does **not** change. Approve any permission prompts
+   (Drive access was added in v2.1).
+6. If the log entry names a one-time function (e.g. `importDevCalendar`),
+   pick it in the function dropdown and press **▶ Run** once. Green alert = done.
+
+### PART C - verify (1 minute)
+
+- Admin desk opens and stays signed in ("Keep me signed in" ticked).
+- The calendar shows events (if the import ran).
+- Site settings save and show up after reloading the journal.
 
 ---
 
@@ -183,6 +250,9 @@ Do these parts in order. Total time: **~20 minutes**.
 ## ✍️ Daily workflow (writing entries)
 
 1. Open `…/admin.html`, enter your **journal key** (the `ADMIN_KEY`), click **Open the desk**.
+   Leave **"Keep me signed in on this device"** ticked and you will not be asked again
+   on this browser (the calendar desk shares the same sign-in). Untick it on shared
+   computers; **Log out** always clears it.
 2. Click **✎ New entry**.
 3. Fill in: title → unit → module → category → date → status.
 4. Write in the big box using **Markdown**:
@@ -231,10 +301,18 @@ Everything the public site says - without editing HTML:
 - **Social media**: Facebook, Instagram, LinkedIn, YouTube channel, email. Pasted links appear as pills on the home page and in the footer. Blank fields stay hidden.
 - **Intro video**: paste a YouTube, Google Drive, or `.mp4` link and a playable video player appears on the home page under the welcome text, with your own heading and caption. Blank = no video.
 
-How it works: you save → the values are written into a **`Settings`** tab in your Google Sheet
-(it is created automatically, you do not need to re-run setup) → the site fetches them on
-load and swaps the built-in text. Readers see the change on their next visit.
-⚠️ Like media uploads, this needs the newest `Code.gs` deployed (**New version**, one time).
+How it works: you save → the values are stored → the site fetches them on load and swaps
+the built-in text. Readers see the change on their next visit.
+
+**Two storage homes, best available one wins** (since v2.5):
+1. With the newest `Code.gs` deployed: a **`Settings`** tab in your Google Sheet
+   (auto-created; public read, key-gated write).
+2. With ANY backend version, **no redeploy needed**: a hidden published
+   "carrier" entry titled `✦ TALA site settings (system entry - do not delete)`.
+   It is filtered out of every card, count, search and the reader. Do not
+   delete or edit it by hand; deleting it is harmless - the next save recreates it.)
+
+⚠️ Media uploads still need the newest `Code.gs` deployed (**New version**, one time).
 
 ---
 
@@ -306,16 +384,99 @@ Dec 18).
 
 You asked to be able to start fresh chats anytime. Do this:
 
-1. **Download this workspace** (the `journal/` folder) to your computer.
+1. **Download this workspace** (the whole `journal/` folder, as a zip) to your computer.
 2. In the new chat, **upload the folder** and say:
-   > "This is my Tala journal project. Read README.md, especially the Maintenance Log below, then let's continue: *[what you want]*."
-3. The **Maintenance Log** below tells the new chat exactly what's been built and what state things are in. I update it every time changes are made.
+   > "This is my Tala journal project. Read README.md top to bottom - especially the
+   > Work state, the Install checklist, the Maintenance Log, and VOICE.md - then let's
+   > continue: *[what you want]*."
+3. The **Work state** block above tells the new chat what is live and what is pending;
+   the **Maintenance Log** below records every version. Both are updated on every change.
+
+### Conventions the next chat must follow
+
+- **Voice**: read `VOICE.md` before writing any entry or site copy. Simple, direct
+  words. **No em-dashes anywhere** (before shipping, grep for the characters U+2014 and U+2013).
+- **Every change** ends with the Maintenance Log entry (version number + title +
+  files touched) AND the Work state block updated AND the reply ends with PART A/B/C
+  install steps for Arnold.
+- **Backend changes** always warn that a **New version redeploy** is needed; editor-only
+  functions (like `importDevCalendar`) do not.
+- Plain static HTML/CSS/JS only. No frameworks, no build. Backend stays
+  Google Apps Script + Google Sheets (+ Drive for media).
+- Never commit `_sources/` (course PDFs are copyrighted).
+- Site identity: TALA ni Arnold, UP-minimalist white design, left rail, maroon accents,
+  handwritten touches. Admin = `admin.html`. Public = `index.html` + `course.html`.
 
 ---
 
 ## 📝 Maintenance Log
 
 *(newest first - updated on every change)*
+
+### 2026-09-19 - v2.7 "Speed and the smooth"
+- **The 404 logout, dissected.** Live site was serving a STALE MIX of files (admin.js /
+  journal.js / calendar.js / admin.html / course.html were several versions behind the
+  workspace - cherry-picked file uploads). Backend itself verified ALIVE the whole time
+  (ping answered `{"ok":true …}`). Google's /exec also occasionally answers a live
+  deployment with a stray 404 on slow lines, so:
+  - `admin.js` + `calendar.js` now **retry quietly (3 attempts, backoff)** on
+    HTTP 404/408/409/425/429/5xx and network hiccups before showing any error -
+    and a remembered key is never dropped over a transient failure.
+  - The login error explains the 404-after-deploy case and asks you to press once more.
+- **Real speed work:**
+  - Calendar now paints **instantly from a localStorage cache** (`tala_events_cache`)
+    and refreshes live after; a failed refresh keeps the cached copy instead of a dead
+    end. Edits update the cache immediately.
+  - `preconnect` hints for script.google.com + script.googleusercontent.com on all pages.
+  - `content-visibility: auto` on the long digest sections.
+- **Smooth, light animations** (transform/opacity only, cheap one-time plays; the global
+  prefers-reduced-motion rule already zeroes them): staggered hero entrance, entry cards
+  rising in, gentle card hover lift, view fade-ins, calendar cell hover, reader settle.
+- **Editing coverage widened ("all parts")**: new editable zones - About-card name,
+  calendar page title + intro, footer course-requirement statement, footer AI
+  disclosure, digest kicker/headline/lede. They flow through the same Site settings
+  storage (native tab, carrier fallback). `course.html` now self-applies them with a
+  small inline loader (no extra files). The digest's seven chapters stay in
+  course.html by design (reference material).
+- `markdown.js` links now accept relative paths (`[admin desk](admin.html)`);
+  `javascript:`/`data:` protocols are stripped.
+- Files touched: `index.html`, `course.html`, `admin.html`, `assets/js/config.js`,
+  `assets/js/journal.js`, `assets/js/admin.js`, `assets/js/calendar.js`,
+  `assets/js/markdown.js`, `assets/css/style.css`, `README.md`.
+- **No backend change.** Install: upload the whole `journal/` folder (PART A) - do not
+  cherry-pick files; mixing old and new versions is exactly what caused the 404 logout.
+
+### 2026-09-19 - v2.6 "No borrowed links"
+- **Removed the public links to the course pack** (textbook PDF, DevCom Primer, scrapbook
+  reference) from `course.html`: those files live in UPOU's space and are licensed for
+  enrolled students, not for republishing. Titles stay as plain citations, with one line
+  noting that links are withheld on purpose. The sample student journal link stays
+  (it is a public blog, not course pack). The sidebar "Course sources" panel was always
+  citation-only, no changes needed.
+- Files touched: `course.html`, `README.md`.
+
+### 2026-09-19 - v2.5 "Stay signed in, write anywhere"
+- **Persistent admin sign-in.** New "Keep me signed in on this device" checkbox on the
+  login card (ticked by default): the journal key now lives in localStorage and survives
+  closed tabs and restarts. Unticked = sessionStorage as before. Log out clears both.
+  `calendar.js` reads the same storage, so the calendar stays editable too.
+- **Site settings that save on ANY backend.** The "I can't edit the home texts" bug was
+  the old live backend not knowing the `settings`/`saveSettings` actions (Code.gs was
+  never redeployed after v2.2). Now there is a second home: on save, the desk falls back
+  to a hidden published **carrier entry** (`✦ TALA site settings (system entry - do not
+  delete)`) written through the plain create/update actions the original backend has had
+  since v1.0. `journal.js` reads it and filters it out of every card, count, filter,
+  search and the reader. Native Settings tab still wins once the new backend is
+  deployed (empty native tab correctly falls back to the carrier). 7/7 carrier tests pass.
+- **README reworked as the standing manual** (Arnold's request): new "⚡ Work state"
+  block (live URLs, pending steps, verification), new "🔁 Installing every update"
+  PART A/B/C checklist, expanded "💬 Resuming work" with the conventions the next chat
+  follows (voice, no em-dashes, always end with install steps, per-version log).
+- Files touched: `admin.html`, `assets/js/admin.js`, `assets/js/calendar.js`,
+  `assets/js/journal.js`, `assets/css/style.css`, `README.md`.
+- Backend: **no new requirement** (works on today's deployed Code.gs). The one-time
+  New-version redeploy remains pending for media uploads (v2.1) and the native
+  Settings tab (v2.2).
 
 ### 2026-09-19 - v2.4 "The fine print"
 - **New footer (site and digest pages).** The old three-column footer is replaced with a

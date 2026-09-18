@@ -14,6 +14,8 @@
 <meta name="twitter:title" content="TALA ni Arnold · Arnold C. Noda">
 <meta name="twitter:description" content="Notes on development, communication and social change.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
@@ -104,7 +106,7 @@
               <div class="seal-row">
                 <div class="seal-dot">✎</div>
                 <div>
-                  <div class="who">Arnold C. Noda</div>
+                  <div class="who" id="about-who">Arnold C. Noda</div>
                   <div class="role" id="about-role">Information Officer III, Bicol University CPRO<br>DevCom student, UP Open University · 1S 2026-2027</div>
                 </div>
               </div>
@@ -159,9 +161,9 @@
   <main id="calendar-view" class="hidden">
     <div class="page cal-page">
       <div class="cal-title-row">
-        <h1>My calendar</h1>
+        <h1 id="cal-title">My calendar</h1>
       </div>
-      <p class="cal-sub">
+      <p class="cal-sub" id="cal-sub">
         Deadlines, activities, readings, and everything else this semester throws at me.
         <b>Red</b> is a deadline, <b>gold</b> is a TMA, <b>green</b> is an activity,
         <b>gray</b> is personal. Sign in at the <a href="admin.html">admin desk</a> to add your own.
@@ -183,7 +185,7 @@
       </div>
       <p class="fine-line" id="footer-text">A journal for DEVC 202, kept in public so I will remember what I promised
       myself to become. Written in Legazpi City, where the sea is never far.</p>
-      <p class="fine-line">
+      <p class="fine-line" id="footer-req">
         <strong>A course requirement.</strong> This website is my learning journal for
         <strong>DEVC 202: Development Communication Concepts and Approaches</strong>, published as a course
         requirement (the journal itself carries 20% of the final grade) of the Master of Development
@@ -191,7 +193,7 @@
         Unless a note says otherwise, every entry here is my own writing. The views on this site are mine
         alone: they are not my employer&rsquo;s, and not my school&rsquo;s.
       </p>
-      <p class="fine-line ai">
+      <p class="fine-line ai" id="footer-ai">
         <strong>AI assistance, disclosed.</strong> This website was designed and built with the help of an
         artificial intelligence assistant: the design, the code, the calendar, and the course digest were
         drafted by AI under my direction. The journal entries themselves are chosen, written, edited, and

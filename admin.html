@@ -51,6 +51,11 @@
       <label for="key-input">Journal key</label>
       <input type="password" id="key-input" placeholder="••••••••••••" autocomplete="current-password">
     </div>
+    <label class="remember-row" for="remember-device">
+      <input type="checkbox" id="remember-device" checked>
+      <span>Keep me signed in on this device
+        <em>(on a shared computer, untick this)</em></span>
+    </label>
     <button class="btn maroon" id="login-btn" style="width:100%;justify-content:center">Open the desk</button>
     <p id="login-error" style="color:#a52929;font-size:.82rem;min-height:1.2em;margin:14px 0 0"></p>
   </div>
@@ -147,6 +152,10 @@
               <input type="text" id="s-rail_quote">
             </div>
             <div class="field">
+              <label for="s-about_who">Name on the About card</label>
+              <input type="text" id="s-about_who">
+            </div>
+            <div class="field">
               <label for="s-about_role">Role lines ("About the journal keeper")</label>
               <textarea id="s-about_role" rows="2"></textarea>
             </div>
@@ -158,6 +167,42 @@
               <label for="s-footer_text">Footer motto line</label>
               <textarea id="s-footer_text" rows="4"></textarea>
             </div>
+            <div class="field">
+              <label for="s-footer_req_text">Course requirement statement (footer)</label>
+              <textarea id="s-footer_req_text" rows="4"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-footer_ai_text">AI disclosure statement (footer)</label>
+              <textarea id="s-footer_ai_text" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">◴ Calendar &amp; digest pages</div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="s-calendar_title">Calendar page title</label>
+              <input type="text" id="s-calendar_title">
+            </div>
+            <div class="field">
+              <label for="s-calendar_sub">Calendar page intro</label>
+              <textarea id="s-calendar_sub" rows="3"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-digest_kicker">Digest small kicker</label>
+              <input type="text" id="s-digest_kicker">
+            </div>
+            <div class="field">
+              <label for="s-digest_title">Digest big headline</label>
+              <textarea id="s-digest_title" rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label for="s-digest_lede">Digest welcome paragraph</label>
+              <textarea id="s-digest_lede" rows="5"></textarea>
+            </div>
+            <div class="hint">The digest's seven chapters live inside course.html itself (reference material that
+            changes rarely; ask your AI chat to edit it when needed).</div>
           </div>
         </div>
 

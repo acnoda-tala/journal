@@ -20,6 +20,14 @@
 
   const SETCACHE = 'tala_settings_cache';
 
+  /* settings store, two sources - native tab (new backend) or a
+     hidden "carrier" entry (any backend). The carrier is kept out
+     of every list, card, count and search on this page. */
+  const SETTINGS_CARRIER_TITLE = '✦ TALA site settings (system entry - do not delete)';
+  function isSettingsEntry_(e) { return e && e.title === SETTINGS_CARRIER_TITLE; }
+  function parseJson_(t) { try { const j = JSON.parse(t); return (j && typeof j === 'object') ? j : null; } catch (e) { return null; } }
+  function hasSettingsValues_(o) { return !!o && Object.keys(o).some(k => String(o[k] || '').trim() !== ''); }
+
   function richText(v) {
     return mdInline(escapeHtml(String(v))).replace(/\n/g, '<br>');
   }
@@ -34,9 +42,14 @@
     ['hero_note',   'hero-note',       'quill'],
     ['signature',   'hero-signature',  'plain'],
     ['rail_quote',  'rail-quote',      'plain'],
+    ['about_who',   'about-who',       'plain'],
     ['about_role',  'about-role',      'rich'],
     ['about_text',  'about-text',      'rich'],
     ['footer_text', 'footer-text',     'rich'],
+    ['footer_req_text', 'footer-req',  'rich'],
+    ['footer_ai_text',  'footer-ai',   'rich'],
+    ['calendar_title',  'cal-title',   'plain'],
+    ['calendar_sub',    'cal-sub',     'rich'],
   ];
 
   function renderSocials(sel, s) {
@@ -93,7 +106,7 @@
       const res = await fetch(API + '?action=settings');
       if (!res.ok) return null;
       const data = await res.json();
-      return data.ok ? (data.settings || {}) : null;
+      return (data.ok && hasSettingsValues_(data.settings)) ? data.settings : null;
     } catch (err) { return null; }
   }
 
@@ -449,11 +462,20 @@
     state.search = ev.target.value; renderEntries();
   });
 
+  let nativeSettingsApplied = false;
+  function applySettingsFresh(s) {
+    try { localStorage.setItem(SETCACHE, JSON.stringify(s)); } catch (e) { /* full */ }
+    applySettings(s);
+  }
+
   // instant paint from cache (backend mode only), then fetch fresh
   if (!DEMO) {
     try {
       const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-      if (cached && cached.length) { paint(cached); $('#cache-note').classList.remove('hidden'); }
+      if (cached && cached.length) {
+        paint(cached.filter(e => !isSettingsEntry_(e)));
+        $('#cache-note').classList.remove('hidden');
+      }
     } catch (e) { /* corrupted cache: ignore */ }
     try {
       const cachedSettings = JSON.parse(localStorage.getItem(SETCACHE) || 'null');
@@ -463,12 +485,19 @@
 
   loadSettings().then(s => {
     if (!s) return;
-    try { localStorage.setItem(SETCACHE, JSON.stringify(s)); } catch (e) { /* full */ }
-    applySettings(s);
+    nativeSettingsApplied = true;
+    applySettingsFresh(s);
   });
 
   loadEntries()
-    .then(entries => {
+    .then(fetched => {
+      // the hidden carrier entry supplies settings on any backend version
+      const carrier = fetched.find(isSettingsEntry_);
+      const entries = fetched.filter(e => !isSettingsEntry_(e));
+      if (carrier && !nativeSettingsApplied) {
+        const s = parseJson_(carrier.content);
+        if (s && hasSettingsValues_(s)) applySettingsFresh(s);
+      }
       if (!DEMO) localStorage.setItem(CACHE_KEY, JSON.stringify(entries));
       $('#cache-note').classList.add('hidden');
       paint(entries);

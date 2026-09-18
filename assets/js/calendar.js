@@ -60,7 +60,7 @@ const TalaCalendar = (function () {
     editingId: null,
   };
 
-  function KEY() { return sessionStorage.getItem('tala_key') || ''; }
+  function KEY() { return localStorage.getItem('tala_key') || sessionStorage.getItem('tala_key') || ''; }
   function editable() { return DEMO || !!KEY(); }
 
   /* ---------- helpers ---------- */
@@ -102,15 +102,39 @@ const TalaCalendar = (function () {
     localStorage.setItem('tala_events_local', JSON.stringify(user));
   }
 
+  /* events cached in this browser for instant paint; refreshed live */
+  const EVENTS_CACHE = 'tala_events_cache';
+
+  function paintFromCache_() {
+    try {
+      const c = JSON.parse(localStorage.getItem(EVENTS_CACHE) || 'null');
+      if (c && Array.isArray(c.events)) { state.events = c.events; state.loaded = true; state.fromCache = true; return true; }
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+  function saveCache_() {
+    try { localStorage.setItem(EVENTS_CACHE, JSON.stringify({ ts: Date.now(), events: state.events })); } catch (e) { /* full */ }
+  }
+
   async function loadRemote() {
     async function attempt(params) {
-      const res = await fetch(API + '?' + new URLSearchParams(params));
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      let data;
-      try { data = await res.json(); }
-      catch (e) { throw new Error('backend returned a non-JSON reply'); }
-      if (!data.ok) throw new Error(data.error || 'backend error');
-      return data;
+      let lastErr;
+      for (let i = 0; i < 3; i++) {
+        try {
+          const res = await fetch(API + '?' + new URLSearchParams(params));
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          let data;
+          try { data = await res.json(); }
+          catch (e) { throw new Error('backend returned a non-JSON reply'); }
+          if (!data.ok) throw new Error(data.error || 'backend error');
+          return data;
+        } catch (err) {
+          lastErr = err;
+          if (!/HTTP (404|408|409|425|429|500|502|503|504)|Failed to fetch|NetworkError|Load failed/i.test(err.message) || i === 2) break;
+          await new Promise(r => setTimeout(r, 600 * (i + 1)));
+        }
+      }
+      throw lastErr;
     }
 
     // First choice: everything, if we hold a valid journal key.
@@ -124,6 +148,7 @@ const TalaCalendar = (function () {
         // A stale or mistyped key should never break the calendar.
         // Drop it; the admin desk will simply ask for it again.
         console.warn('calendar: keyed load failed (' + e.message + '). Falling back to public events.');
+        localStorage.removeItem('tala_key');
         sessionStorage.removeItem('tala_key');
         state.keyDropped = true;
       }
@@ -136,10 +161,17 @@ const TalaCalendar = (function () {
   }
 
   async function ensureLoaded() {
-    if (state.loaded) return;
+    if (state.loaded && !state.fromCache) return;
     if (DEMO) { loadLocal(); return; }
-    try { await loadRemote(); }
-    catch (err) {
+    try {
+      await loadRemote();
+      state.fromCache = false;
+      saveCache_();
+    } catch (err) {
+      if (state.fromCache) {
+        console.warn('calendar: refresh failed, keeping the cached copy on screen (' + err.message + ')');
+        return; // the cached copy is already painted: no dead end
+      }
       console.error(err);
       document.getElementById('calendar-root').innerHTML =
         '<div class="empty-state"><div class="big">⚠</div>Could not load your calendar from the Google Sheet.<br>' +
@@ -180,6 +212,7 @@ const TalaCalendar = (function () {
     } else if (action === 'eventDelete') {
       state.events = state.events.filter(e => String(e.id) !== String(payload.id));
     }
+    saveCache_();
     return data;
   }
 
@@ -427,6 +460,11 @@ const TalaCalendar = (function () {
         </div>
         ${DEMO ? '<div class="cal-foot-note">✎ Demo mode: activities you add are saved in this browser only, and samples marked "(sample)" can be deleted anytime. Connect the backend (README Part 2) to keep them in your Google Sheet.</div>' : ''}`;
       booted = true;
+    }
+    if (!state.loaded && !DEMO && paintFromCache_()) {
+      const t0 = ofDate(todayISO());
+      if (!state.year) { state.year = t0.y; state.month = t0.m; state.selected = todayISO(); }
+      renderGrid(); renderPanel(); // instant: cached copy on screen at once
     }
     await ensureLoaded();
     const t = ofDate(todayISO());

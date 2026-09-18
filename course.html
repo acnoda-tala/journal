@@ -6,6 +6,8 @@
 <title>Course digest · DEVC 202 · Tala</title>
 <meta name="description" content="DEVC 202 Development Communication Concepts and Approaches, digested on one page: the big ideas, the definitions, the grading matrix, and every output due. Condensed from the Course Guide and Resource Kit, 1S 2026-2027.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
@@ -44,9 +46,9 @@
   <div class="page">
 
     <section class="hero">
-      <div class="kicker">DEVC 202 · Development Communication Concepts &amp; Approaches · 1S 2026-2027</div>
-      <h1>The course, on one <em>page</em>.</h1>
-      <p class="digest-lede">
+      <div class="kicker" id="digest-kicker">DEVC 202 · Development Communication Concepts &amp; Approaches · 1S 2026-2027</div>
+      <h1 id="digest-title">The course, on one <em>page</em>.</h1>
+      <p class="digest-lede" id="digest-lede">
         Everything DEVC 202 asks of me, kept in one place so I never lose the thread:
         the lineage of the discipline, the problematique, the definitions to know cold,
         the grading matrix, and the exact shape of every output due.
@@ -103,9 +105,10 @@
 
       <h4>Primary materials</h4>
       <ul>
-        <li><a href="https://drive.google.com/file/d/1duPxBy9xI7Wu_4nEkGZ1XK-WPKA3GsKT/view" target="_blank" rel="noopener"><strong>Introduction to Development Communication</strong></a> by Ila Virginia C. Ongkiko and Alexander G. Flor - the main textbook, one chapter per module.</li>
+        <li><strong>Introduction to Development Communication</strong> by Ila Virginia C. Ongkiko and Alexander G. Flor - the main textbook, one chapter per module.</li>
         <li>The <strong>Course Guide and Resource Kit</strong> - core modules, required readings (Lasswell, Schramm, Coombs), and the assignment package.</li>
-        <li>Also in the pack: the <a href="https://drive.google.com/file/d/1DtqS4d2G-O8J09PdHSxyrGMcbOm9eDf0/view" target="_blank" rel="noopener">DevCom Primer</a>, the <a href="https://drive.google.com/file/d/1nfqtqFEfsvlatOl-Ys4jqLjZ_ODMZKC3/view" target="_blank" rel="noopener">Scrapbook reference</a>, and a <a href="https://joanneg24.wordpress.com/" target="_blank" rel="noopener">sample student journal</a> from a previous class.</li>
+        <li>Also in the pack: the <strong>DevCom Primer</strong>, the <strong>Scrapbook reference</strong>, and a <a href="https://joanneg24.wordpress.com/" target="_blank" rel="noopener">sample student journal</a> from a previous class.</li>
+        <li style="list-style:none"><em style="font-size:.85em;color:var(--ink-faint)">No download links here on purpose: the course pack is licensed for enrolled students only.</em></li>
       </ul>
     </section>
 
@@ -301,7 +304,7 @@
         record book, bound scratch paper, a three-ring binder, or an electronic format. Collect
         webpages, newspaper articles, digital photographs, magazine clippings, posters, or leaflets;
         items should be no more than one year old. A <strong>table of contents</strong> is required.
-        There is an official <a href="https://drive.google.com/file/d/1nfqtqFEfsvlatOl-Ys4jqLjZ_ODMZKC3/view" target="_blank" rel="noopener">scrapbook reference</a> in the course pack.
+        There is an official <strong>scrapbook reference</strong> in the course pack.
         Required inventory table:
       </p>
       <table class="tbl">
@@ -384,7 +387,7 @@
       </div>
       <p class="fine-line" id="footer-text">A journal for DEVC 202, kept in public so I will remember what I promised
       myself to become. Written in Legazpi City, where the sea is never far.</p>
-      <p class="fine-line">
+      <p class="fine-line" id="footer-req">
         <strong>A course requirement.</strong> This website is my learning journal for
         <strong>DEVC 202: Development Communication Concepts and Approaches</strong>, published as a course
         requirement (the journal itself carries 20% of the final grade) of the Master of Development
@@ -392,7 +395,7 @@
         Unless a note says otherwise, every entry here is my own writing. The views on this site are mine
         alone: they are not my employer&rsquo;s, and not my school&rsquo;s.
       </p>
-      <p class="fine-line ai">
+      <p class="fine-line ai" id="footer-ai">
         <strong>AI assistance, disclosed.</strong> This website was designed and built with the help of an
         artificial intelligence assistant: the design, the code, the calendar, and the course digest were
         drafted by AI under my direction. The journal entries themselves are chosen, written, edited, and
@@ -411,5 +414,45 @@
 
 </div><!-- /main -->
 
+<script src="assets/js/config.js"></script>
+<script src="assets/js/markdown.js"></script>
+<script>
+/* Editable digest parts (v2.7): overridden by Site settings when you save them */
+(function () {
+  var API = (JOURNAL_CONFIG.API_URL || '').trim();
+  if (!API) return;
+  function rich(v) { return mdInline(escapeHtml(String(v))).replace(/\n/g, '<br>'); }
+  var MAP = [
+    ['digest_kicker', 'digest-kicker'], ['digest_title', 'digest-title'], ['digest_lede', 'digest-lede'],
+    ['footer_req_text', 'footer-req'], ['footer_ai_text', 'footer-ai'],
+  ];
+  function apply(st) {
+    if (!st) return;
+    MAP.forEach(function (m) {
+      var v = (st[m[0]] || '').trim();
+      if (!v) return;
+      var el = document.getElementById(m[1]);
+      if (el) el.innerHTML = rich(v);
+    });
+  }
+  function hasValues(o) { return !!o && Object.keys(o).some(function (k) { return String(o[k] || '').trim() !== ''; }); }
+  function fromCarrier() {
+    return fetch(API + '?action=list').then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) return;
+      var c = (d.entries || []).filter(function (e) {
+        return e.title === '\u2726 TALA site settings (system entry - do not delete)';
+      })[0];
+      if (c) { try { apply(JSON.parse(c.content)); } catch (e) {} }
+    });
+  }
+  try { apply(JSON.parse(localStorage.getItem('tala_settings_cache') || 'null')); } catch (e) {}
+  fetch(API + '?action=settings').then(function (r) { return r.json(); }).then(function (d) {
+    if (d && d.ok && hasValues(d.settings)) {
+      try { localStorage.setItem('tala_settings_cache', JSON.stringify(d.settings)); } catch (e) {}
+      apply(d.settings);
+    } else { fromCarrier(); }
+  }).catch(function () { fromCarrier(); });
+})();
+</script>
 </body>
 </html>
