@@ -5,11 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>Admin · Tala - Arnold C. Noda</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='30' text-anchor='middle' fill='%23E3B84C'%3E%E2%9C%8E%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo-star.svg">
+<meta name="theme-color" content="#7B1113" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171310" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<meta property="og:site_name" content="TALA ni Arnold">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Admin desk · Tala">
+<meta property="og:description" content="Arnold's desk. Entries, events, and site settings.">
+<meta property="og:url" content="https://acnoda-tala.github.io/journal/admin.html">
+<meta property="og:image" content="https://acnoda-tala.github.io/journal/assets/img/og-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>
+  (function(){try{var t=localStorage.getItem('tala_theme');
+  if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 </head>
 <body>
 
@@ -120,6 +136,10 @@
             <div class="field">
               <label for="s-rail_sub">Line under the name (left rail)</label>
               <input type="text" id="s-rail_sub">
+            </div>
+            <div class="field">
+              <label for="s-rail_sub2">Small line under that ("a journal blog")</label>
+              <input type="text" id="s-rail_sub2">
             </div>
             <div class="field">
               <label for="s-hero_kicker">Small line above the big headline</label>
@@ -330,7 +350,11 @@
               <textarea id="f-content" rows="16" placeholder="Write your entry here…
 
 ### Use headings like this
-Use **bold**, *italic*, > quotes, and - lists."></textarea>
+Use **bold**, *italic*, > quotes, and - lists.
+
+Module entries: start with  [module N · subtitle]  for the module badge;
+end with  [refs]  one citation per line  [/refs]  - references are auto-sorted
+and hung-indent formatted (APA 7) on the page."></textarea>
               <div class="hint">Tip: leave the excerpt blank and it will be written automatically from your first paragraph.</div>
               <div class="hint">
                 <b>Media:</b> ⬆ uploads any file - photos, graphs, PDFs, audio, video (files live in
@@ -367,5 +391,16 @@ Use **bold**, *italic*, > quotes, and - lists."></textarea>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/markdown.js"></script>
 <script src="assets/js/admin.js"></script>
+<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Day / night"></button>
+<script>
+  (function(){var b=document.getElementById('theme-toggle');if(!b)return;
+    function paint(){var d=document.documentElement.getAttribute('data-theme')==='dark';
+      b.textContent=d?'☀':'☾';b.setAttribute('aria-pressed',d?'true':'false');}
+    b.addEventListener('click',function(){
+      var d=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',d);
+      try{localStorage.setItem('tala_theme',d);}catch(e){}paint();});
+    paint();})();
+</script>
 </body>
 </html>

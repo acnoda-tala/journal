@@ -6,12 +6,29 @@
 <title>Study Planner · Tala ni Arnold</title>
 <meta name="description" content="The study desk: daily objectives, weekly map, and deadlines for DEVC 202 - Development Communication Concepts and Approaches.">
 
+<meta name="theme-color" content="#7B1113" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171310" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo-star.svg">
+<meta property="og:site_name" content="TALA ni Arnold">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Study Planner · Tala ni Arnold">
+<meta property="og:description" content="One objective every day for DEVC 202: the semester planned, dated, and ticked off in public.">
+<meta property="og:url" content="https://acnoda-tala.github.io/journal/planner.html">
+<meta property="og:image" content="https://acnoda-tala.github.io/journal/assets/img/og-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>
+  (function(){try{var t=localStorage.getItem('tala_theme');
+  if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 
 <style>
   * { box-sizing: border-box; }
@@ -21,6 +38,8 @@
     align-items: baseline; gap: 14px; flex-wrap: wrap; }
   .pl-brand { font-family: var(--serif); font-size: 19px; letter-spacing: .2px; }
   .pl-brand .pl-star { color: var(--maroon); }
+  .pl-brand .pl-sub2 { font-size: 10px; font-weight: 700; letter-spacing: 2.4px;
+    text-transform: uppercase; color: var(--ink-faint); margin-left: 8px; }
   .pl-brand em { font-family: var(--hand); color: var(--maroon); font-size: 17px; margin-left: 6px; }
   .pl-top nav a { color: var(--ink-soft); text-decoration: none; font-size: 14px; margin-left: 16px; }
   .pl-top nav a:first-child { margin-left: 0; }
@@ -104,6 +123,15 @@
   .pl-day.is-done .pl-what { text-decoration: line-through; color: var(--ink-faint); }
   .pl-day .pl-dueflag { color: var(--maroon); }
 
+  .pl-edit { border: none; background: none; cursor: pointer; color: var(--ink-faint); font-size: 13px;
+    padding: 1px 4px; border-radius: 6px; flex: none; }
+  .pl-edit:hover { color: var(--maroon); background: #f6ece6; }
+  .pl-editarea { width: 100%; font: inherit; font-size: 13.5px; line-height: 1.45; padding: 6px 8px;
+    border: 1px solid var(--maroon); border-radius: 7px; background: #fffdf8; resize: vertical; }
+  .pl-visitnote { display: none; }
+  body.pl-visitor .pl-visitnote { display: inline; }
+  body.pl-visitor .pl-day input[type="checkbox"], body.pl-visitor #today-check { opacity: .45; cursor: not-allowed; }
+
   .pl-note { background: var(--paper-card); border: 1px dashed var(--rule); border-radius: var(--radius); padding: 18px 22px;
     color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
   .pl-note .pl-hand { font-family: var(--hand); font-size: 21px; color: var(--maroon); }
@@ -120,7 +148,8 @@
 <body>
 
 <div class="pl-top">
-  <div class="pl-brand"><span class="pl-star">✦</span> TALA <em class="pl-ni">ni arnold</em></div>
+  <div class="pl-brand"><span class="pl-star">✦</span> TALA <em class="pl-ni">ni arnold</em>
+    <small class="pl-sub2">a journal blog</small></div>
   <nav>
     <a href="index.html#/">Journal</a>
     <a href="index.html#/calendar">Calendar</a>
@@ -500,6 +529,32 @@
   /* ================= helpers ================= */
   var $ = function (s) { return document.querySelector(s); };
   var LS = 'tala_plan_';
+  var TXT = 'tala_plan_txt_';
+  var ADMIN = false;
+  try { ADMIN = !!(localStorage.getItem('tala_key') || sessionStorage.getItem('tala_key')); } catch (e) {}
+  var openIds = {};
+  function txtFor(dateIso, fallback) {
+    var v = null;
+    try { v = localStorage.getItem(TXT + dateIso); } catch (e) {}
+    return (v && v.trim()) ? v : fallback;
+  }
+  function setTxt(dateIso, v) {
+    try {
+      if (v && v.trim()) localStorage.setItem(TXT + dateIso, v);
+      else localStorage.removeItem(TXT + dateIso);
+    } catch (e) {}
+  }
+  function findDay(dateIso) {
+    for (var bi = 0; bi < PLAN.length; bi++) {
+      var b = PLAN[bi];
+      for (var i = 0; i < b.days.length; i++) {
+        var d = addDays(b.f, i);
+        if (d > b.t) break;
+        if (iso(d) === dateIso) return { b: b, i: i, txt: b.days[i] };
+      }
+    }
+    return null;
+  }
   var WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -554,17 +609,68 @@
   } else {
     obj = 'Term complete. Archive the cards with a photo; keep the Tuesday habit for what comes next.';
   }
+  if (now) obj = txtFor(iso(t), obj);
+  $('#today-hint').textContent = ADMIN
+    ? 'Tick it when genuinely done - and hit ✎ on any line below to reword it. Saved on this device.'
+    : 'Arnold\u2019s everyday ledger - visitors read, only the admin ticks. padagos!';
   $('#today-label').textContent = 'Today · ' + nice(t) + (now ? ' · ' + now.w : '');
   $('#today-obj').textContent = obj;
   var tch = $('#today-check');
+  tch.disabled = !ADMIN;
   tch.checked = isTicked(iso(t));
   todayCard.classList.toggle('is-done', tch.checked);
   tch.addEventListener('change', function () {
+    if (!ADMIN) return;
     setTicked(iso(t), tch.checked);
     todayCard.classList.toggle('is-done', tch.checked);
     renderAll(false);
     syncTodayInBlock();
   });
+
+  /* ================= admin-only edit + visitor gate ================= */
+  if (!ADMIN) document.body.classList.add('pl-visitor');
+
+  /* remember which blocks are unfolded so a re-render (after a tick/edit) keeps them */
+  document.getElementById('pl-blocks').addEventListener('toggle', function (e) {
+    var det = e.target;
+    if (det && det.tagName === 'DETAILS' && det.getAttribute('data-bid')) {
+      openIds[det.getAttribute('data-bid')] = det.open;
+    }
+  }, true);
+
+  /* click a pencil -> edit that day's objective (admin only) */
+  document.getElementById('pl-blocks').addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest('.pl-edit') : null;
+    if (!btn || !ADMIN) return;
+    startEdit(btn.closest('.pl-day'), btn.getAttribute('data-e'));
+  });
+
+  function startEdit(row, di) {
+    if (!row) return;
+    var found = findDay(di);
+    if (!found) return;
+    var span = row.querySelector('.pl-what');
+    if (!span || span.querySelector('textarea')) return;
+    var orig = txtFor(di, found.txt);
+    span.innerHTML = '<textarea class="pl-editarea" rows="2" ' +
+      'placeholder="' + esc(found.txt).replace(/"/g, '&quot;') + '"></textarea>';
+    var ta = span.querySelector('textarea');
+    ta.value = orig;
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+    var finish = function (saveIt) {
+      if (saveIt) {
+        var v = ta.value.trim();
+        setTxt(di, (v && v !== found.txt) ? v : ''); // empty or unchanged = back to the planned line
+      }
+      renderAll(false);
+    };
+    ta.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); finish(true); }
+      else if (ev.key === 'Escape') { finish(false); }
+    });
+    ta.addEventListener('blur', function () { finish(true); });
+  }
 
   /* ================= progress rails ================= */
   function renderRails() {
@@ -598,7 +704,7 @@
         if (d <= t && isTicked(iso(d))) ticked++;
       });
       var pct = total ? Math.round(100 * ticked / Math.min(total, Math.max(0, Math.round((Math.min(b.t, t) - b.f) / 86400000) + 1) || 1)) : 0;
-      var openAttr = isNow ? ' open' : '';
+      var openAttr = (isNow || openIds[b.id]) ? ' open' : '';
       var cls = 'pl-block' + (isNow ? ' is-now' : '') + (past ? ' is-past' : '');
       var s1 = '<summary>' +
         '<div class="pl-bsum1"><span class="pl-w">' + esc(b.w) + '</span>' +
@@ -624,13 +730,14 @@
         var cl = 'pl-day' + (di === iso(t) ? ' is-today' : '') + (d < t && di !== iso(t) ? ' is-past' : '') + (done ? ' is-done' : '');
         var isDue = b.due && b.due.d === di;
         return '<div class="' + cl + '" data-day="' + di + '">' +
-          '<input type="checkbox" data-k="' + di + '"' + (done ? ' checked' : '') + '>' +
+          '<input type="checkbox" data-k="' + di + '"' + (done ? ' checked' : '') + (ADMIN ? '' : ' disabled') + '>' +
           '<span class="pl-when">' + nice(d) + '</span>' +
-          '<span class="pl-what">' + (isDue ? '<span class="pl-dueflag">⏰ </span>' : '') + esc(txt) + '</span>' +
+          '<span class="pl-what">' + (isDue ? '<span class="pl-dueflag">⏰ </span>' : '') + esc(txtFor(di, txt)) + '</span>' +
+          (ADMIN ? '<button type="button" class="pl-edit" data-e="' + di + '" title="Edit this objective">✎</button>' : '') +
           '</div>';
       }).join('') + '</div>';
 
-      return '<details class="' + cls + '"' + openAttr + '>' + s1 +
+      return '<details data-bid="' + b.id + '" class="' + cls + '"' + openAttr + '>' + s1 +
         '<div class="pl-bbody"><div class="pl-btrack"><div class="pl-bfill" style="width:' + Math.min(100, isNow || past ? pct : 0) + '%"></div></div>' +
         '<div class="pl-cols">' + col('Read', b.read) + col('Produce / submit', b.ship) + col('Do', b.dos) + '</div>' +
         days + '</div></details>';
@@ -641,6 +748,7 @@
   document.getElementById('pl-blocks').addEventListener('change', function (e) {
     var box = e.target;
     if (!box || box.type !== 'checkbox' || !box.getAttribute('data-k')) return;
+    if (!ADMIN) { box.checked = !box.checked; return; }
     setTicked(box.getAttribute('data-k'), box.checked);
     renderAll(false);
     if (box.getAttribute('data-k') === iso(t)) syncHeroFromBlock();
@@ -687,6 +795,17 @@
   syncHeroFromBlock();
   nextUp();
 })();
+</script>
+<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Day / night"></button>
+<script>
+  (function(){var b=document.getElementById('theme-toggle');if(!b)return;
+    function paint(){var d=document.documentElement.getAttribute('data-theme')==='dark';
+      b.textContent=d?'☀':'☾';b.setAttribute('aria-pressed',d?'true':'false');}
+    b.addEventListener('click',function(){
+      var d=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',d);
+      try{localStorage.setItem('tala_theme',d);}catch(e){}paint();});
+    paint();})();
 </script>
 </body>
 </html>

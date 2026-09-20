@@ -6,20 +6,31 @@
 <title>TALA ni Arnold · The Learning Journal of Arnold C. Noda</title>
 <meta name="description" content="Tala - notes on development, communication and social change. The DEVC 202 learning journal of Arnold C. Noda, DevCom student, UP Open University.">
 <meta name="author" content="Arnold C. Noda">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#7B1113" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171310" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<meta property="og:site_name" content="TALA ni Arnold">
+<meta property="og:url" content="https://acnoda-tala.github.io/journal/">
+<meta property="og:image" content="https://acnoda-tala.github.io/journal/assets/img/og-card.jpg">
 <meta property="og:type" content="website">
 <meta property="og:title" content="TALA ni Arnold · The Learning Journal of Arnold C. Noda">
 <meta property="og:description" content="Notes on development, communication and social change. A DEVC 202 journal from Legazpi, beside Mayon and the sea.">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="TALA ni Arnold · Arnold C. Noda">
 <meta name="twitter:description" content="Notes on development, communication and social change.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237B1113'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="assets/img/logo-star.svg">
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Archivo:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>
+  (function(){try{var t=localStorage.getItem('tala_theme');
+  if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+  document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
 </head>
 <body>
 
@@ -32,6 +43,7 @@
     <span>
       <span class="name" id="site-name">TALA</span>
       <span class="sub hand" id="rail-sub">ni arnold</span>
+      <span class="sub2" id="rail-sub2">a journal blog</span>
     </span>
   </a>
 
@@ -219,5 +231,16 @@
 <script src="assets/js/markdown.js"></script>
 <script src="assets/js/calendar.js"></script>
 <script src="assets/js/journal.js"></script>
+<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Day / night"></button>
+<script>
+  (function(){var b=document.getElementById('theme-toggle');if(!b)return;
+    function paint(){var d=document.documentElement.getAttribute('data-theme')==='dark';
+      b.textContent=d?'☀':'☾';b.setAttribute('aria-pressed',d?'true':'false');}
+    b.addEventListener('click',function(){
+      var d=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',d);
+      try{localStorage.setItem('tala_theme',d);}catch(e){}paint();});
+    paint();})();
+</script>
 </body>
 </html>
