@@ -222,6 +222,26 @@
         .replace(/\n{3,}/g, '\n\n').trimEnd();
       refsVal = rm[0].replace(/^\s*\[refs\]/, '').replace(/\[\/refs\]\s*$/, '').trim();
     }
+
+    /* still empty? harvest citations pasted at the end of the body itself (toast lets Arnold undo) */
+    if (!refsVal) {
+      const paras = body.split(/\n{2,}/);
+      const cites = [];
+      const looksLikeCite = b => b.length >= 35 && /[(](?:\d{4}[a-z]?|n\.d\.)[),.\]]?/.test(b)
+        && !/^(?:#{1,3}\s|>\s|[-*]\s|\d[).]\s|!\[|\[)/.test(b.trim());
+      while (paras.length) {
+        const last = paras[paras.length - 1].trim();
+        if (!last) { paras.pop(); continue; }
+        if (looksLikeCite(last)) cites.unshift(paras.pop());
+        else break;
+      }
+      if (cites.length >= 2) {
+        body = paras.join('\n\n').trimEnd();
+        body = body.replace(/\n?\*?\*?\s*!!?\s*RE?FE?RE?N?C?E?S?\s*!!?\s*\*?\*?\s*$/i, '');
+        refsVal = cites.map(c => c.trim()).join('\n');
+        toast('✦ Found ' + cites.length + ' references at the end of the text - moved to the References box');
+      }
+    }
     $('#f-content').value = body;
     $('#f-refs').value = refsVal;
     $('#f-excerpt').value = entry ? entry.excerpt || '' : '';

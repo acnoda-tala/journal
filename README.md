@@ -1,5 +1,25 @@
 # ✦ TALA - The Learning Journal of Arnold C. Noda
 
+## 🦄 STARTING A FRESH CHAT? Read this first (30 seconds)
+
+- **This workspace IS the whole project.** The website lives in `journal/` (HTML + css/js in
+  `assets/`); publish = upload the journal folder's **CONTENTS** to
+  https://github.com/acnoda-tala/journal via "Add file → Upload files" - NEVER drag the folder
+  itself and never include `_sources/` (copyrighted course pack). `entries/` is staging only.
+- **Live site:** https://acnoda-tala.github.io/journal/ · **Backend:** a Google Apps Script web app
+  (URL pinned in `assets/js/config.js`) reading/writing Arnold's own Google Sheet - entries,
+  calendar events, and Site settings live there, NOT in the repo. After every Code.gs edit, the
+  deployment needs **New version → Deploy**.
+- **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
+  the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
+  each version. Current: **v2.15**. If live files differ from the workspace, upload the files listed
+  under the newest log entries.
+- **To brief a new AI chat, paste:**
+
+  > *"You are continuing work on Arnold Noda's Tala journal. Open and read journal/README.md
+  > in this workspace for full context: architecture, standing rules, the maintenance log,
+  > and the current todo list. Then wait for my task."*
+
 > *Tala* - Filipino for both **a written record** and **a star**. A journal, and something to steer by.
 
 A personal learning journal for **DEVC 202 - Development Communication Concepts and
@@ -428,6 +448,22 @@ You asked to be able to start fresh chats anytime. Do this:
 ## 📝 Maintenance Log
 
 *(newest first - updated on every change)*
+
+### 2026-09-19 - v2.15 "References, unbreakable"
+- ROOT CAUSE (live diagnosis): live JS/CSS were still v2.7-era while pages were v2.13+,
+  so the newest reference machinery (apa indent, refs box merge, citation links,
+  lightbox/TOC) never loaded upfront: pasted references vanished on save.
+  Remedy = upload the files listed below plus `assets/img/` (still missing since v2.13).
+- **Renderer toughened:** `[refs]` blocks tolerate blank lines between citations; a plain
+  list of citations pasted at the very END of an entry (with or without its
+  "REFERENCES" header) is detected, cleaned, sorted, hung-indented, and linked - no
+  markers at all required. A lone trailing citation sentence is never misread as a list.
+- **Editor heals itself:** opening an entry whose body ends in citation paragraphs
+  auto-moves them into the References box (a toast says what it did). Once live, older
+  saved entries style themselves on page render - no re-saving needed.
+- Files touched: `assets/js/markdown.js`, `assets/js/admin.js`, `admin.html`, `README.md`.
+  Tests: 13/13 including the real Module-1 legacy shape.
+- README gained the 🦄 "STARTING A FRESH CHAT" bootstrap box at the very top.
 
 ### 2026-09-19 - v2.14 "The desk knows APA"
 - **Separate References box in the editor.** Paste ALL your citations into the new

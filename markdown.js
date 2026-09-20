@@ -166,10 +166,56 @@ function mdInline(s) {
   return s;
 }
 
+
+/* ---------- v2.15: reference-tolerant pre-pass ----------
+   APA blocks arrive in the wild three ways:
+   (a) wrapped in [refs]...[/refs] but with blank lines between citations,
+   (b) a plain list of citations pasted at the end with a "REFERENCES" header,
+   (c) the bare tail of an entry. Normalise all into one canonical block so the
+   splitter and the APA renderer always see them in the same shape. */
+function v215_looksLikeCite(b) {
+  return b.length >= 35
+    && /[(](?:\d{4}[a-z]?|n\.d\.)[),.\]]/.test(b)
+    && !/^(?:#{1,3}\s|>\s|[-*]\s|\d[).]\s|!\[|\[|\*|\||---+$)/.test(b);
+}
+
+function v215_squashAndLift(text) {
+  // (a) collapse blank lines inside an explicit block
+  text = text.replace(/\n[ \t]*\[refs\][ \t]*([\s\S]*?)\n[ \t]*\[\/refs\][ \t]*(?=\n|$)/ig,
+    (m, inner) => {
+      const lines = inner.split(/\n+/).map(l => l.trim()).filter(Boolean);
+      return '\n\n[refs]\n' + lines.join('\n') + '\n[/refs]\n\n';
+    });
+  return text;
+}
+
+function v215_liftTailCites(blocks) {
+  // (b/c) harvest consecutive citation-looking paragraphs trailing the entry
+  const cites = [];
+  while (blocks.length) {
+    const last = blocks[blocks.length - 1].trim();
+    if (!last) { blocks.pop(); continue; }
+    if (v215_looksLikeCite(last)) cites.unshift(blocks.pop());
+    else break;
+  }
+  // drop a lone heading-ish line serving as the list's title ("REFERENCES", "**References**", "!! REFERENCES")
+  if (cites.length >= 2 && blocks.length) {
+    const head = blocks[blocks.length - 1].trim();
+    if (/^(?=.{0,60}$)[ \t*!_#>]*RE?FE?RE?N?C?E?S?\b[ \t*!_]*$/i.test(head.replace(/[*_]{2,}/g, '*'))) {
+      blocks.pop();
+    }
+  }
+  if (cites.length < 2) blocks.push(...cites);
+  return cites.length >= 2 ? cites : [];
+}
+
 function mdToHtml(src) {
-  const text = escapeHtml(String(src || '')).replace(/\r\n?/g, '\n');
+  let text = escapeHtml(String(src || '')).replace(/\r\n?/g, '\n');
+  text = v215_squashAndLift(text);
   const blocks = text.split(/\n{2,}/);
   const html = [];
+  const lifted = v215_liftTailCites(blocks);
+  if (lifted.length) blocks.push('[refs]\n' + lifted.join('\n') + '\n[/refs]');
 
   for (let raw of blocks) {
     const block = raw.trim();

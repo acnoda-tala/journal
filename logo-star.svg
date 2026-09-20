@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 108" fill="none">
+  <!-- TALA star-mark: a five-point star traced by a fountain pen, with its ink dot -->
+  <title>TALA star mark</title>
+  <desc>A hand-drawn five-point star in deep maroon ink, penned in one stroke with a small ink dot above it. tala = star = note.</desc>
+  <path d="M50 16 L60 41 L86 42 L66 59 L73 86 L50 70 L27 86 L34 59 L14 42 L40 41 Z"
+        stroke="#7B1113" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"
+        fill="rgba(123,17,19,.05)"/>
+  <!-- the trailing swirl, as if the nib drew away -->
+  <path d="M34 86 C 30 94, 40 98, 46 94"
+        stroke="#7B1113" stroke-width="4" stroke-linecap="round"/>
+  <!-- the ink dot -->
+  <circle cx="50" cy="7" r="4.5" fill="#7B1113"/>
+</svg>
