@@ -429,6 +429,132 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
+### 2026-09-19 - v2.14 "The desk knows APA"
+- **Separate References box in the editor.** Paste ALL your citations into the new
+  "References" textarea under the body, one full APA citation per line - no [refs]
+  markers needed. On save the box is appended (or replaced) at the end of the entry;
+  on edit it is lifted back out into its box. Tail content after the block (like the
+  AI-disclosure note) is preserved; box always wins.
+- **Smarter-than-typing citation LINKING.** After render, the entry finds matching
+  in-text citations on its own - "(Author, 2023)", multi-part
+  "Name & Name (2021)", acronym citations like "(PSA, 2025c)", "(NEDA, 2023)",
+  "(CPBRD, 2026)", "(BTr, n.d.; De Leon, 2026)" - and wraps each in a highlighted,
+  dotted link. Click: smooth-jumps to the exact reference (flash pulse). The
+  reference's printed URL is the second click out to the source. Guards: a year (or
+  n.d.) must sit after a comma inside parentheses, so codes like
+  "(PSA Board Resolution 13-2024)" never become fake links; print strips the tint.
+- For the real Module 1 entry it finds **11 working citation jumps automatically**
+  (16 references).
+- **Already true, now truer:** the Write panel and the Live preview were one page -
+  preview is now sticky on desktop, syncs the References box as you paste, and shows
+  citation highlights exactly as the public entry renders them.
+- **Divider upgrade:** "---" on its own line now renders as a rule centred on a ✦
+  (hmm, elegant) - use it between Activity 1.1 and 1.2. Same look in the editor preview.
+- **Brand check (per Arnold's note):** verified the live site shows NO "Mga" anywhere;
+  it already reads "TALA ni Arnold · a journal blog." (v2.13 HTML went live but
+  `assets/img/` still needs uploading - tab logo 404s until then.)
+- Files touched: `assets/js/markdown.js`, `assets/js/admin.js`, `assets/js/journal.js`,
+  `admin.html`, `assets/css/style.css`, `README.md`.
+
+### 2026-09-19 - v2.13 "The pen-star"
+- **Logo developed.** `assets/img/logo-star.svg` - a five-point star traced by one
+  fountain-pen stroke with its ink dot above (tala = star = note, the whole poetry)
+  - hand-authored vector, ~800 bytes, crisp at favicon size. Plus
+  `assets/img/logo-tala.svg`, the full lockup (star + TALA + ni arnold) for future
+  posters, slides, or the printed journal cover. All four pages now USE the star
+  as their favicon (replacing the provisional emoji circle).
+- **Name decided: "Tala ni Arnold" stays** (Arnold's call, per brand review).
+  New subtitle under the wordmark: **"a journal blog"** - shown in the left rail on
+  the journal + digest, and beside the planner's top brand. Editable as a new Site
+  setting: `rail_sub2` (defaults to "a journal blog"; the Admin desk panel gains the
+  field, so you may rename it anytime without touching code).
+- Files touched: `assets/img/logo-star.svg` (NEW), `assets/img/logo-tala.svg` (NEW),
+  `index.html`, `course.html`, `planner.html`, `admin.html`, `assets/js/config.js`,
+  `assets/js/journal.js`, `assets/css/style.css`, `README.md`.
+
+### 2026-09-19 - v2.12 "Share, print, pocket"
+All byte-zero for visitors: metatags only, a 528-byte manifest, and print CSS that
+activates solely under Ctrl+P. No service worker - deliberate (staleness risk > value).
+- **Print stylesheet (`@media print`):** sidebars, pill bar, nav rows, toggles, and
+  chrome vanish; article body, module badge, figures, and APA references stay, with
+  smart page-breaks (no heading orphaned, no figure/ref split mid-box). The footer
+  course-requirement + AI-disclosure statements REMAIN printed - graders must see them.
+- **Share cards:** per-page `og:title/description/url/image`, site name, and
+  `twitter:card` (large summary) on journal, digest, planner, and admin. One hand-drawn
+  maroon star + fountain-pen card (`assets/img/og-card.jpg`, 1430x750) serves all pages.
+  Pasted links now arrive with an elegant preview in Messenger/Discord/class group chats.
+- **PWA lite:** `manifest.webmanifest` + maroon star app icons (192/512, optimized
+  1.36MB -> 305KB + 38KB) + theme-color (maroon day / ink night, follows v2.11).
+  Chrome/Android: the journal can be "Add to Home Screen"-ed as an app-shell icon,
+  tabs open standalone. iOS: Apple touch icon set; planner got its missing favicon.
+- Files touched: `index.html`, `course.html`, `planner.html`, `admin.html`,
+  `assets/css/style.css`, `manifest.webmanifest` (NEW), `assets/img/` (NEW: 3 images),
+  `README.md`.
+
+### 2026-09-19 - v2.11 "Day and night"
+- **Dark/light switch on all four pages** (journal, digest, planner, admin desk):
+  a round toggle fixed bottom-right (☾ to go dark, ☀ to go light). Your choice
+  saves in `tala_theme`; first visit follows your device preference
+  (`prefers-color-scheme`), with no white flash (a 3-line head script applies the
+  theme before first paint).
+- Dark palette is a warm-night inversion via the existing CSS custom properties:
+  same maroon family (brightened to readable rose-maroon), paper -> deep sepia,
+  ink -> cream; matched tints for the module badge, pill bar, planner highlights,
+  and the lightbox. No library, no repaint loops; reduced-motion users get an
+  instant flip.
+- **Confirmed live:** both course entries (Module 1 + Scrapbook) still published
+  from the Sheet - theme work touches zero data.
+- Files touched: `index.html`, `course.html`, `planner.html`, `admin.html`,
+  `assets/css/style.css`, `README.md`.
+
+### 2026-09-19 - v2.10 "Zoom and bearings"
+Two reader-side upgrades, built strictly lean per Arnold's call ("no laggy extras"):
+zero libraries, zero polling loops, everything delegation- or observer-based.
+- **Figure lightbox.** Any table/graph image in an entry's reader now opens full-size
+  in a dark overlay (click again, the ×, or Esc to close; ←/→ arrow keys and on-image
+  buttons walk through every figure in the entry; one figure = buttons hidden; nav
+  buttons hidden on phones). Esc is captured so it closes the lightbox, not the entry.
+  Reader body scroll is locked while open. `reduced-motion` users get no pop animation.
+- **"On this reading" pill bar.** Long entries (>= 3 headings, like the module
+  entries) get a sticky pill strip of their own section headings; clicking pills
+  smooth-scrolls (instant for reduced-motion users) and the section in view is
+  highlighted live via IntersectionObserver. Headings get scroll-margin so they
+  never dock under the sticky bar. Short entries (< 3 headings) skip it entirely.
+- Files touched: `assets/js/journal.js`, `assets/css/style.css`, `README.md`.
+
+### 2026-09-19 - v2.9 "Ledger locked, references lazy"
+- **Planner gate.** The study desk is now read-only for visitors: checkboxes are
+  greyed and guarded (a stray click auto-reverts), while the signed-in admin
+  (`tala_key` present) ticks freely. Where you signed in on the admin desk you've
+  ALSO unlocked editing: every day row gets a ✎ pencil - reword an objective
+  inline, Enter saves, Esc cancels, empty save restores the planned line. Ticks
+  and edits stay on that device (it is YOUR ledger), the page says so plainly.
+  Unfolded blocks stay open across re-renders now.
+- **Auto-APA references in entries.** New shortcode, teach it once:
+      [refs]
+      Surname, I. (Year). Title of the work. *Journal Name*, 11(5), 4-9. https://...
+      [/refs]
+  One citation per line (no blank lines inside). The renderer alphabetizes by
+  author, drops exact dupes, ensures a trailing period, italicizes whatever you
+  marked with *asterisks* (APA's journal/book titles and volume), linkifies bare
+  URLs (trailing punctuation kept OUT of the href), and hangs the indent under a
+  clean "REFERENCES" rule - per APA 7th, the style UPOU DevComm expects.
+- **Module badge** for course entries: first line  [module N · subtitle]  paints
+  the maroon-kick module banner at the top of the entry body. Works on every
+  future module entry - same line, different N.
+- Admin compose hint on the body textarea now documents both constructs.
+- **Entry rebuilds staged (live audit, same day):** `entries/module-1-development.REBUILT.md`
+  and `entries/societal-problems-scrapbook.REBUILT.md` are cleaned versions of the two
+  live entries (verbatim text; 8/8 Drive figures + the scrapbook PDF preserved). Use
+  them to overwrite the live bodies from the admin desk AFTER the v2.9 files are up:
+  the `[module]` badge and `[refs]` blocks need the new renderer. Fixes applied:
+  underscore rulers -> real `---`; duplicate "FINDINGS" relabeled "DATA TRAIL";
+  stray "note"/"!! Padagos!" lines removed; references moved into `[refs]` (16 and 7
+  sources, alphabetized; title italics applied per APA). `entries/` is a staging
+  folder - it does not need to be uploaded with the site files.
+- Files touched: `assets/js/markdown.js`, `assets/css/style.css`, `planner.html`,
+  `admin.html`, `README.md`. Tests 18/18. No backend change.
+
 ### 2026-09-19 - v2.8 "The study desk"
 - **New page: `planner.html`** - "Study planner.", built from the course guide's
   milestone calendar (digest #weeks). One objective for **every day of the term**

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 150" fill="none">
+  <!-- TALA horizontal lockup: star-mark + wordmark in the site's Fraunces/Caveat faces -->
+  <title>TALA ni Arnold - wordmark</title>
+  <g transform="translate(6,18)">
+    <path d="M56 6 L65 31 L91 32 L71 49 L78 76 L56 60 L33 76 L40 49 L20 32 L46 31 Z"
+          stroke="#7B1113" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round"
+          fill="rgba(123,17,19,.05)"/>
+  </g>
+  <text x="118" y="86" font-family="Fraunces, Georgia, serif" font-weight="700"
+        font-size="64" letter-spacing="4" fill="#1b1b1b">TALA</text>
+  <text x="120" y="124" font-family="Caveat, 'Segoe Script', cursive" style="font-style:italic"
+        font-size="38" fill="#7B1113">ni arnold</text>
+</svg>

@@ -1487,3 +1487,39 @@ body.lb-open { overflow: hidden; }
   font-size: 10px; font-weight: 700; letter-spacing: 2.6px;
   text-transform: uppercase; color: var(--ink-faint);
 }
+
+/* ============ CITATION LINKS + FANCY DIVIDER + STICKY PREVIEW (v2.14) ============ */
+
+/* in-text citation -> reference jump */
+.cite-link {
+  color: var(--maroon); text-decoration: none; cursor: pointer;
+  border-bottom: 1px dotted var(--maroon);
+  background: rgba(123, 17, 19, .06); border-radius: 3px; padding: 0 .08em;
+}
+.cite-link:hover { background: rgba(123, 17, 19, .13); }
+.apa-ref { scroll-margin-top: 96px; }
+.apa-ref.ref-flash { animation: ref-flash 1.3s ease-out; border-radius: 6px; }
+@keyframes ref-flash { 0% { background: #f5dcc9; } 100% { background: transparent; } }
+[data-theme="dark"] .cite-link { background: rgba(199, 95, 88, .12); }
+[data-theme="dark"] .cite-link:hover { background: rgba(199, 95, 88, .2); }
+@media print { .cite-link { color: inherit; border-bottom: none; background: none; } }
+
+/* the typographic section divider - a plain "---", looking gracious */
+.reader-body hr, .preview-pane .panel-body hr {
+  height: 28px; border: 0; position: relative; margin: 34px 0;
+}
+.reader-body hr::before, .preview-pane .panel-body hr::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 1px solid var(--rule);
+}
+.reader-body hr::after, .preview-pane .panel-body hr::after {
+  content: '✦'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 14px; background: var(--paper); color: var(--maroon); font-size: 13px;
+}
+
+/* admin: keep the live preview in view while writing (desktop) */
+@media (min-width: 940px) {
+  .preview-pane { position: sticky; top: 14px; }
+  .preview-pane .panel-body { max-height: calc(100vh - 148px); overflow: auto; padding-right: 4px; }
+}

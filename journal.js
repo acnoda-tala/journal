@@ -403,6 +403,7 @@
     });
 
     buildTOC_();
+    if (window.linkCitations) linkCitations(document.querySelector('#reader-view .reader-body'));
   }
 
   function route() {
