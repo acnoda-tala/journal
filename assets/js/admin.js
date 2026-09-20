@@ -192,10 +192,10 @@
   /* ---------- editor ---------- */
   function fillStaticDropdowns() {
     $('#f-unit').innerHTML =
-      ['General', ...COURSE_MAP.map(u => u.unit)]
+      ['Personal', ...COURSE_MAP.map(u => u.unit)]
         .map(u => `<option>${u}</option>`).join('');
     $('#f-module').innerHTML =
-      `<option value="0">General / no module</option>` +
+      `<option value="0">Personal / no module</option>` +
       COURSE_MAP.map(u =>
         `<optgroup label="${u.unit} · ${u.theme}">` +
         u.modules.map(m => `<option value="${m.n}">M${m.n} · ${m.title}</option>`).join('') +
@@ -204,10 +204,11 @@
   }
 
   function openEditor(entry) {
+    if (!$('#editor-view').classList.contains('hidden') && !confirmDiscard_()) return;
     editingId = entry ? String(entry.id) : null;
     $('#editor-heading').textContent = entry ? 'Edit entry' : 'New entry';
     $('#f-title').value = entry ? entry.title || '' : '';
-    $('#f-unit').value = entry && entry.unit ? entry.unit : 'General';
+    $('#f-unit').value = canonUnitAdmin_(entry && entry.unit) || (entry && entry.unit ? entry.unit : 'Personal');
     $('#f-module').value = entry ? String(entry.module || 0) : '0';
     $('#f-category').value = entry ? entry.category || '' : 'Reflection';
     $('#f-date').value = entry && entry.date ? entry.date : new Date().toISOString().slice(0, 10);
@@ -249,11 +250,32 @@
     $('#list-view').classList.add('hidden');
     $('#settings-view').classList.add('hidden');
     $('#editor-view').classList.remove('hidden');
+    markDirty_(false);
+    tipShown_ = false;
     window.scrollTo({ top: 0 });
     $('#f-title').focus();
   }
 
+  function canonUnitAdmin_(u) { return (String(u || '').trim().toLowerCase() === 'general') ? 'Personal' : u; }
+
+  /* ---- unsaved-changes guardian (v2.16) ---- */
+  let formDirty_ = false, tipShown_ = false;
+  function markDirty_(d) {
+    formDirty_ = !!d;
+    document.body.classList.toggle('unsaved', formDirty_);
+    if (formDirty_ && !tipShown_) { tipShown_ = true; toast('Editing... remember to SAVE before leaving this page'); }
+  }
+  function confirmDiscard_() {
+    return !formDirty_ || confirm('You have UNSAVED changes.\n\nOK = discard them and leave the editor\nCancel = stay and keep writing (then press Save entry)');
+  }
+  window.addEventListener('beforeunload', (e) => {
+    if (formDirty_ && !$('#editor-view').classList.contains('hidden')) { e.preventDefault(); e.returnValue = ''; }
+  });
+
   function closeEditor() {
+    if (!confirmDiscard_()) return;
+    markDirty_(false);
+    tipShown_ = false;
     editingId = null;
     $('#editor-view').classList.add('hidden');
     switchTab(currentTab);
@@ -288,7 +310,7 @@
   async function saveSettingsViaCarrier_(settings) {
     const payload = {
       title: SETTINGS_CARRIER_TITLE,
-      unit: 'General', module: 0, category: 'System', date: '2019-01-01',
+      unit: 'Personal', module: 0, category: 'System', date: '2019-01-01',
       tags: 'system, settings', status: 'published',
       excerpt: 'TALA site settings storage. Not a journal entry - please do not edit it by hand.',
       content: JSON.stringify(settings),
@@ -380,6 +402,7 @@
       } else {
         entries.push({ ...entry, id: res.id });
       }
+      markDirty_(false);
       closeEditor();
       renderTable();
       toast(entry.status === 'published' ? '✦ Saved & published' : 'Saved to drafts');
@@ -580,12 +603,14 @@
   $('#key-input').addEventListener('keydown', ev => { if (ev.key === 'Enter') $('#login-btn').click(); });
 
   $('#logout-btn').addEventListener('click', () => {
+    if (!confirmDiscard_()) return;
     localStorage.removeItem('tala_key');
     sessionStorage.removeItem('tala_key');
     location.reload();
   });
   $('#new-entry-btn').addEventListener('click', () => openEditor(null));
   $('#cancel-edit-btn').addEventListener('click', closeEditor);
+  $('#editor-view').addEventListener('input', () => markDirty_(true));
   $('#save-btn').addEventListener('click', saveEntry);
   $('#f-content').addEventListener('input', updatePreview);
   $('#f-refs').addEventListener('input', updatePreview);

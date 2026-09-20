@@ -12,7 +12,7 @@
   deployment needs **New version → Deploy**.
 - **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
   the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
-  each version. Current: **v2.15**. If live files differ from the workspace, upload the files listed
+  each version. Current: **v2.16**. If live files differ from the workspace, upload the files listed
   under the newest log entries.
 - **To brief a new AI chat, paste:**
 
@@ -448,6 +448,36 @@ You asked to be able to start fresh chats anytime. Do this:
 ## 📝 Maintenance Log
 
 *(newest first - updated on every change)*
+
+### 2026-09-20 - v2.16 "Friendly, first-screen"
+- **Arial for all reading text** (per Arnold: easy on the eyes). Long-form body,
+  excerpts and the editor are now Arial; headings/wordmark keep the UP serif identity.
+- **Favicon can no longer disappear**: the pen-star is INLINED into every page head as
+  a data-URI (works even with zero assets uploaded). The assets/img file stays as
+  the high-res/OG source. (Root cause of the last disappearance: assets/img/ was still
+  not uploaded since v2.13 - this makes the visible icon survive that anyway.)
+- **Entries above the fold**: the home hero is compressed (padding 78px→30px, h1 and
+  lede and meta tightened) so the journal entries are visible immediately on load,
+  desktop and phone alike.
+- **Unsaved-changes guardian**: typing marks the editor "• unsaved" (header badge +
+  glowing Save button + one-time reminder toast); leaving Cancel, switching entry,
+  logging out, or closing the tab now asks "discard or keep writing" first. Saving
+  clears the flag.
+- **GENERAL -> PERSONAL** everywhere it shows (editor unit select, home pills, rail
+  nav). Legacy entries stored as "General" are auto-canonicalized on load, both
+  front-ends - old content keeps filtering correctly, no Sheet edits needed.
+- **PDF beside the text**: a `[pdf]`-style embedded PDF (the scrollable Drive/browser
+  reader) is parked in a sticky column alongside the entry on screens 1040px+; on
+  phones/tablets it follows the text at a readable 520px. Read on one side, consult
+  the source on the other.
+- **Device pass**: global overflow-x clipped (no horizontal scroll ever), tables
+  scroll inside the text column, text-size-adjust fixed for iOS, extra-small phone
+  adjustments (≤420px), sticky PDF column checked against 320px→desktop widths.
+- Files touched: `assets/css/style.css`, `assets/js/journal.js`, `assets/js/admin.js`,
+  + favicon lines of `index.html`, `admin.html`, `planner.html`, `course.html`,
+  `README.md`. (markdown.js unchanged this round but must ship for v2.15 features.)
+- Delivery: `tala-update-v2.16.zip` = exact files to overlay (extract over your
+  GitHub Desktop clone, Commit & Push).
 
 ### 2026-09-19 - v2.15 "References, unbreakable"
 - ROOT CAUSE (live diagnosis): live JS/CSS were still v2.7-era while pages were v2.13+,

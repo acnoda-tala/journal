@@ -103,6 +103,7 @@ const SITE_DEFAULTS = {
   /* --- the site --- */
   site_name:  'TALA',
   rail_sub:   'ni arnold',
+  rail_sub2:  'a journal blog',
   hero_kicker: 'DEVC 202 · Development Communication Concepts & Approaches',
   hero_title:  'Notes on *development*, *communication*, and social change.',
   hero_lede:   'In Filipino, **tala** means two things: a note, and a star.\nThis journal will be both. By day I write news for **Bicol University**.\nBy night I study **Development Communication** at the\n**University of the Philippines Open University**. This is where the two meet.\nNo press release here. Just one man, his readings, and the questions he cannot shake off.',

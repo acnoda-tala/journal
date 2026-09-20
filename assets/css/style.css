@@ -18,7 +18,7 @@
   --wash:        #f7f7f5;
 
   --serif: 'Fraunces', Georgia, 'Iowan Old Style', 'Times New Roman', serif;
-  --sans:  'Archivo', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --sans:  Arial, 'Helvetica Neue', 'Segoe UI', Helvetica, sans-serif;
   --hand:  'Caveat', 'Segoe Script', cursive;
 
   --radius: 12px;
@@ -246,7 +246,7 @@ a:hover { color: var(--maroon-dark); text-decoration-color: currentColor; }
 /* --------------------------------------------------------------------------
    Hero
    -------------------------------------------------------------------------- */
-.hero { padding: 78px 0 44px; }
+.hero { padding: 30px 0 22px; }
 .hero .kicker {
   font-size: .76rem;
   letter-spacing: .22em;
@@ -266,25 +266,25 @@ a:hover { color: var(--maroon-dark); text-decoration-color: currentColor; }
 .hero h1 {
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
   line-height: 1.1;
-  margin: 20px 0 14px;
+  margin: 12px 0 8px;
   max-width: 19ch;
   letter-spacing: -0.015em;
 }
 .hero h1 em { color: var(--maroon); font-style: italic; }
-.hero .lede { max-width: 60ch; color: var(--ink-soft); font-size: 1.05rem; }
+.hero .lede { max-width: 62ch; color: var(--ink-soft); font-size: .98rem; margin: 0; }
 .hero .lede strong { color: var(--ink); font-weight: 600; }
 .hero-meta {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 38px;
+  margin-top: 18px;
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
 }
 .hero-meta > div {
-  padding: 18px 34px 18px 0;
-  margin-right: 34px;
+  padding: 10px 24px 10px 0;
+  margin-right: 24px;
   border-right: 1px solid var(--rule);
   font-size: .84rem;
   color: var(--ink-soft);
@@ -548,7 +548,7 @@ a:hover { color: var(--maroon-dark); text-decoration-color: currentColor; }
   border-bottom: 1px solid var(--rule);
 }
 .reader-body {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 1.14rem;
   line-height: 1.88;
   color: #262626;
@@ -791,7 +791,7 @@ a:hover { color: var(--maroon-dark); text-decoration-color: currentColor; }
   .rail { overflow-y: visible; }
   .main { margin-left: 0; }
   .page { padding: 0 20px; }
-  .hero { padding-top: 48px; }
+  .hero { padding-top: 26px; }
 }
 
 /* ==========================================================================
@@ -1523,3 +1523,26 @@ body.lb-open { overflow: hidden; }
   .preview-pane { position: sticky; top: 14px; }
   .preview-pane .panel-body { max-height: calc(100vh - 148px); overflow: auto; padding-right: 4px; }
 }
+
+/* ============ v2.16 devices + pdf beside text + unsaved badge ============ */
+html, body { overflow-x: clip; -webkit-text-size-adjust: 100%; }
+video, audio, canvas { max-width: 100%; }
+.reader-body table { display: block; max-width: 100%; overflow-x: auto; }
+
+/* scrollable PDF parked beside the entry text on wide screens */
+@media (min-width: 1040px) {
+  .reader-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 26px; align-items: start; }
+  .reader-pdf { position: sticky; top: 14px; height: calc(100vh - 44px); }
+  .reader-pdf .pdf-embed { height: 100%; }
+}
+
+/* extra-small phones */
+@media (max-width: 420px) {
+  .page { padding: 0 14px; }
+  .hero h1 { font-size: 1.7rem; }
+  .hero-meta > div { padding: 8px 16px 8px 0; margin-right: 16px; }
+}
+
+/* admin: unsaved-changes badge */
+body.unsaved #save-btn { box-shadow: 0 0 0 3px rgba(123, 17, 19, .22); }
+body.unsaved #editor-view h2::after { content: ' • unsaved'; color: var(--maroon); font-size: .55em; vertical-align: middle; }

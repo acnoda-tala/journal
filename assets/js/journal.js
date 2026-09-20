@@ -141,7 +141,7 @@
     for (const u of COURSE_MAP) {
       if (u.modules.some(m => m.n === Number(n))) return u.unit;
     }
-    return 'General';
+    return 'Personal';
   }
 
   function fmtDate(d) {
@@ -169,16 +169,20 @@
       .sort((a, b) => String(b.date).localeCompare(String(a.date)));
   }
 
+
+/* GENERAL was renamed PERSONAL (v2.16) - keep legacy rows working */
+function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'general') ? 'Personal' : u; }
+
   /* ---------- sidebar renderers ---------- */
 
   function renderUnitFilters() {
-    const units = ['All', ...COURSE_MAP.map(u => u.unit), 'General'];
+    const units = ['All', ...COURSE_MAP.map(u => u.unit), 'Personal'];
     $('#unit-filters').innerHTML = units.map(u =>
       `<button class="chip ${state.unit === u ? 'is-active' : ''}" data-unit="${u}">${u}</button>`
     ).join('');
     $('#unit-filters').querySelectorAll('.chip').forEach(c =>
       c.addEventListener('click', () => {
-        state.unit = c.dataset.unit; state.module = 0;
+        state.unit = canonUnit(c.dataset.unit); state.module = 0;
         renderAll();
       }));
   }
@@ -238,7 +242,7 @@
     state.entries.forEach(e => { counts[e.module] = (counts[e.module] || 0) + 1; });
 
     // unit browse
-    const units = ['All', ...COURSE_MAP.map(u => u.unit), 'General'];
+    const units = ['All', ...COURSE_MAP.map(u => u.unit), 'Personal'];
     $('#rail-units').innerHTML = units.map(u =>
       `<button class="rail-link ${state.unit === u && !state.module ? 'is-active' : ''}" data-unit="${u}">
          ${u === 'All' ? 'All entries' : u}
@@ -344,6 +348,22 @@
     document.title = 'Tala · The Learning Journal of Arnold C. Noda';
   }
 
+  /* scrollable PDF parked beside the entry text (v2.16) */
+  function layoutPdfAside_() {
+    const body = document.querySelector('#reader-view .reader-body');
+    if (!body) return;
+    const pdf = body.querySelector('.pdf-embed');
+    if (!pdf) return;
+    const split = document.createElement('div');
+    split.className = 'reader-split';
+    body.parentNode.insertBefore(split, body);
+    split.appendChild(body);
+    const aside = document.createElement('div');
+    aside.className = 'reader-pdf';
+    aside.appendChild(pdf);
+    split.appendChild(aside);
+  }
+
   function showCalendar() {
     activate('calendar-view');
     document.title = 'Calendar · Tala';
@@ -404,6 +424,7 @@
 
     buildTOC_();
     if (window.linkCitations) linkCitations(document.querySelector('#reader-view .reader-body'));
+    layoutPdfAside_();
   }
 
   function route() {
@@ -565,7 +586,7 @@
   const CACHE_KEY = 'tala_entries_cache';
 
   function paint(entries) {
-    state.entries = entries;
+    state.entries = entries.map(e => { e.unit = canonUnit(e.unit); return e; });
     renderSources(); renderAll(); route();
   }
 
