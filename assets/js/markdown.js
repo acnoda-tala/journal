@@ -166,16 +166,96 @@ function mdInline(s) {
   return s;
 }
 
+
+/* ---------- v2.15: reference-tolerant pre-pass ----------
+   APA blocks arrive in the wild three ways:
+   (a) wrapped in [refs]...[/refs] but with blank lines between citations,
+   (b) a plain list of citations pasted at the end with a "REFERENCES" header,
+   (c) the bare tail of an entry. Normalise all into one canonical block so the
+   splitter and the APA renderer always see them in the same shape. */
+function v215_looksLikeCite(b) {
+  return b.length >= 35
+    && /[(](?:\d{4}[a-z]?|n\.d\.)[),.\]]/.test(b)
+    && !/^(?:#{1,3}\s|>\s|[-*]\s|\d[).]\s|!\[|\[|\*|\||---+$)/.test(b);
+}
+
+function v215_squashAndLift(text) {
+  // (a) collapse blank lines inside an explicit block
+  text = text.replace(/\n[ \t]*\[refs\][ \t]*([\s\S]*?)\n[ \t]*\[\/refs\][ \t]*(?=\n|$)/ig,
+    (m, inner) => {
+      const lines = inner.split(/\n+/).map(l => l.trim()).filter(Boolean);
+      return '\n\n[refs]\n' + lines.join('\n') + '\n[/refs]\n\n';
+    });
+  return text;
+}
+
+function v215_liftTailCites(blocks) {
+  // (b/c) harvest consecutive citation-looking paragraphs trailing the entry
+  const cites = [];
+  while (blocks.length) {
+    const last = blocks[blocks.length - 1].trim();
+    if (!last) { blocks.pop(); continue; }
+    if (v215_looksLikeCite(last)) cites.unshift(blocks.pop());
+    else break;
+  }
+  // drop a lone heading-ish line serving as the list's title ("REFERENCES", "**References**", "!! REFERENCES")
+  if (cites.length >= 2 && blocks.length) {
+    const head = blocks[blocks.length - 1].trim();
+    if (/^(?=.{0,60}$)[ \t*!_#>]*RE?FE?RE?N?C?E?S?\b[ \t*!_]*$/i.test(head.replace(/[*_]{2,}/g, '*'))) {
+      blocks.pop();
+    }
+  }
+  if (cites.length < 2) blocks.push(...cites);
+  return cites.length >= 2 ? cites : [];
+}
+
 function mdToHtml(src) {
-  const text = escapeHtml(String(src || '')).replace(/\r\n?/g, '\n');
+  let text = escapeHtml(String(src || '')).replace(/\r\n?/g, '\n');
+  text = v215_squashAndLift(text);
   const blocks = text.split(/\n{2,}/);
   const html = [];
+  const lifted = v215_liftTailCites(blocks);
+  if (lifted.length) blocks.push('[refs]\n' + lifted.join('\n') + '\n[/refs]');
 
   for (let raw of blocks) {
     const block = raw.trim();
     if (!block) continue;
 
     if (/^-{3,}$/.test(block)) { html.push('<hr>'); continue; }
+
+    // [module N · subtitle] - a badge banner for course-module entries
+    const moduleM = block.match(/^\[module\s+([^\]]+)\]$/);
+    if (moduleM) {
+      const parts = moduleM[1].split('·').map(x => x.trim()).filter(Boolean);
+      const num = parts[0] || '';
+      const ttl = parts.slice(1).join(' · ');
+      html.push(
+        '<div class="module-badge"><span class="mb-kick">DEVC 202 · Module ' + mdInline(num) + '</span>' +
+        (ttl ? '<span class="mb-title">' + mdInline(ttl) + '</span>' : '') + '</div>');
+      continue;
+    }
+
+    // [refs] ... [/refs] - APA reference list: one citation per line;
+    // auto-sorted A-Z by author, deduped, trailing period, hanging indent.
+    // Use *asterisks* for the bits APA italicizes (journal/book titles, volume).
+    if (/^\[refs\][\s\S]*?\[\/refs\]$/.test(block)) {
+      const inner = block.replace(/^\[refs\]/, '').replace(/\[\/refs\]\s*$/, '');
+      const items = inner.split('\n').map(l => l.trim()).filter(Boolean);
+      if (items.length) {
+        const norm = items
+          .map(l => l.replace(/\s{2,}/g, ' ').replace(/[\s.;,]*$/, '') + '.')
+          .filter((l, i, a) => a.indexOf(l) === i);
+        const key = s => s.replace(/^[*_]+/, '').toLowerCase();
+        norm.sort((a, b) => key(a).localeCompare(key(b)));
+        const linkify = s => s.replace(/href="([^"]*)"|(https?:\/\/[^\s<]*[^\s<.,;:!?'")])/g,
+          (m, existing, bare) => existing ? m :
+            '<a href="' + bare + '" target="_blank" rel="noopener">' + bare + '</a>');
+        html.push('<section class="apa-refs"><h4 class="apa-h">References</h4><div class="apa-list">' +
+          norm.map((l, i) => '<p class="apa-ref" id="ref-' + (i + 1) + '">' + linkify(mdInline(l)) + '</p>').join('') +
+          '</div></section>');
+      }
+      continue;
+    }
 
     const h = block.match(/^(#{1,3})\s+(.*)$/);
     if (h) {
@@ -239,4 +319,135 @@ function mdToPlain(src) {
     .replace(/[*_`#>]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/* ---------- intelligent citation linking (v2.14) ----------
+   After an entry is rendered, every in-text citation that matches a listed
+   reference - "(Author, 2023)", "(Ongkiko & Flor, 2021)", narrative
+   "Author (2023)" - becomes a link that scrolls to that reference.
+   The reference's own URL stays clickable: first click finds it, second
+   click goes to the source. Pure-text core (mdCiteMarkText) under a DOM
+   wrapper (linkCitations) so the matcher can be unit-tested. */
+
+function mdCiteCandidates(refTexts) {
+  const out = [];
+  (refTexts || []).forEach((txt, i) => {
+    const yearM = String(txt || '').match(/\((\d{4}[a-z]?|n\.d\.)/);
+    const c = { id: i + 1, year: yearM ? yearM[1] : null, tokens: new Set() };
+    /* author = text before the date parenthesis (APA 7: "Surname, initials. (year)."
+       and "Organization Name. (year).") - handles dates containing commas */
+    const sm = String(txt || '').match(/^(.+?)\.? \(/);
+    let author = sm ? sm[1] : '';
+    author = author.replace(/^[*_]+/, '').replace(/[.;,]\s*$/, '').trim();
+    const surname = author.split(',')[0].trim();
+    if (!surname) return;
+    c.tokens.add(surname);
+    if (/&/.test(author)) {
+      const parts = author.split('&');
+      if (parts.length >= 2) {
+        const s1 = parts[0].split(',')[0].trim(), s2 = parts[1].split(',')[0].trim();
+        c.tokens.add(s1); c.tokens.add(s2);            // Ongkiko + Flor
+        c.tokens.add(s1 + ' & ' + s2);                 // "Ongkiko & Flor"
+      }
+    }
+    const words = surname.split(/\s+/).filter(w => /^[A-Z0-9]/.test(w));
+    if (words.length >= 2) {
+      c.tokens.add(words.map(w => w[0]).join(''));                                    // PSA, NEDA, CPBRD
+      if (words.length <= 3) c.tokens.add(words[0][0] + words[words.length - 1][0] + (words[words.length - 1][1] || ''));  // BTr
+    }
+    out.push(c);
+  });
+  return out;
+}
+
+const CITE_OPEN = '⟨cite:', CITE_CLOSE = '⟩', CITE_END = '⟨/cite⟩';
+
+function mdCiteMarkText(text, cands) {
+  if (!cands || !cands.length) return text;
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const flat = [];
+  cands.forEach(c => c.tokens.forEach(t => { if (t.length > 2) flat.push({ token: t, id: c.id, year: c.year }); }));
+  flat.sort((a, b) => b.token.length - a.token.length);
+
+  /* (a) parenthetical citations - a year (or n.d.) must follow a comma inside,
+         so "(PSA Board Resolution 13-2024)" and plain parentheses do NOT link */
+  text = text.replace(/\(([^()]{3,90})\)/g, function (m, inner) {
+    const years = (inner.match(/,\s*(\d{4}[a-z]?|n\.d\.)/g) || []).map(y => y.replace(/^,\s*/, ''));
+    if (!years.length) return m;
+    for (const c of flat) {
+      if (c.year && years.indexOf(c.year) === -1) continue;
+      if (new RegExp('(^|[\\s,;])' + esc(c.token) + '(?=$|[\\s,;])', 'i').test(inner)) {
+        return CITE_OPEN + c.id + CITE_CLOSE + m + CITE_END;
+      }
+    }
+    return m;
+  });
+
+  /* (b) narrative citations - "Token (Year)" */
+  flat.forEach(c => {
+    if (!c.year) return;
+    const rx = new RegExp('(^|[\\s>])(' + esc(c.token) + ') \\(' + esc(c.year) + '\\)(?![a-z0-9])', 'gi');
+    text = text.replace(rx, (m, pre, tok) => pre + CITE_OPEN + c.id + CITE_CLOSE + tok + ' (' + c.year + ')' + CITE_END);
+  });
+  return text;
+}
+
+function linkCitations(container) {
+  if (!container || !container.querySelectorAll) return;
+  const refEls = Array.prototype.slice.call(container.querySelectorAll('.apa-refs .apa-ref'));
+  if (!refEls.length) return;
+  if (refEls[0].id === '' ) { /* ids come from the renderer */ }
+  const cands = mdCiteCandidates(refEls.map(p => p.textContent || ''));
+  if (!cands.length) return;
+  refEls.forEach((p, i) => { if (!p.id) p.id = 'ref-' + (i + 1); }); // renderer already ids them; belt + suspenders
+
+  const SKIP = { A: 1, CODE: 1, SCRIPT: 1, STYLE: 1, TEXTAREA: 1, BUTTON: 1 };
+  const walker = document.createTreeWalker(container, 4 /* SHOW_TEXT */);
+  const jobs = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    const v = node.nodeValue || '';
+    if (v.length < 6) continue;
+    let bad = false, p = node.parentElement;
+    while (p && p !== container) {
+      if (SKIP[p.tagName] || (p.classList && (p.classList.contains('apa-refs') || p.classList.contains('toc-pill')))) { bad = true; break; }
+      p = p.parentElement;
+    }
+    if (bad || !/(\(\d{4}[a-z]?|\(n\.d\.|, 1[0-9]{3}|[A-Z][A-Za-zÀ-ž.·'&-]+ \(\d{4})/.test(v)) continue;
+    const marked = mdCiteMarkText(v, cands);
+    if (marked !== v) jobs.push([node, marked]);
+  }
+  jobs.forEach(([node, marked]) => {
+    const frag = document.createDocumentFragment();
+    const rx = /⟨cite:(\d+)⟩([\s\S]*?)⟨\/cite⟩/g;
+    let last = 0, m;
+    while ((m = rx.exec(marked))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(marked.slice(last, m.index)));
+      const a = document.createElement('a');
+      a.className = 'cite-link';
+      a.setAttribute('href', '#ref-' + m[1]);
+      a.setAttribute('title', 'Jump to the reference - its link is the final step.');
+      a.textContent = m[2];
+      frag.appendChild(a);
+      last = m.index + m[0].length;
+    }
+    if (last < marked.length) frag.appendChild(document.createTextNode(marked.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+
+  if (!container.__citeWired) {
+    container.__citeWired = true;
+    container.addEventListener('click', e => {
+      const a = e.target && e.target.closest ? e.target.closest('a.cite-link') : null;
+      if (!a) return;
+      e.preventDefault();
+      const t = document.getElementById((a.getAttribute('href') || '').slice(1));
+      if (!t) return;
+      const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      t.scrollIntoView({ behavior: rm ? 'auto' : 'smooth', block: 'start' });
+      t.classList.remove('ref-flash');
+      void t.offsetWidth;
+      t.classList.add('ref-flash');
+    });
+  }
 }

@@ -36,6 +36,7 @@
   const SETTING_MAP = [
     ['site_name',   'site-name',       'plain'],
     ['rail_sub',    'rail-sub',        'plain'],
+    ['rail_sub2',   'rail-sub2',       'plain'],
     ['hero_kicker', 'hero-kicker',     'rich'],
     ['hero_title',  'hero-title',      'rich'],
     ['hero_lede',   'hero-lede',       'rich'],
@@ -374,6 +375,7 @@
         <button class="btn ghost small copy-btn" id="copy-link">⧉ copy link</button>
       </div>
       <h1 class="title">${escapeHtml(e.title)}</h1>
+      <nav class="entry-toc" id="entry-toc" hidden></nav>
       <div class="reader-body">${mdToHtml(e.content)}</div>
       ${tags ? `<div class="tags-row">Filed under: ${tags}</div>` : ''}
       <div class="marginalia" style="margin-top:44px">✎ more soon. the semester is still unfolding.<br>- arnold</div>
@@ -399,6 +401,9 @@
         prompt('Copy this link:', url);
       }
     });
+
+    buildTOC_();
+    if (window.linkCitations) linkCitations(document.querySelector('#reader-view .reader-body'));
   }
 
   function route() {
@@ -442,6 +447,113 @@
       $('#search').focus();
     }
   });
+
+  /* ---------- sticky "on this reading" pill bar (v2.10) ----------
+     Built from the entry's own headings; sticky under the top bar,
+     highlights the section in view via IntersectionObserver (no scroll loops). */
+  let tocObserver = null;
+  function buildTOC_() {
+    const nav = $('#entry-toc');
+    if (!nav) return;
+    if (tocObserver) { tocObserver.disconnect(); tocObserver = null; }
+    const body = document.querySelector('#reader-view .reader-body');
+    const heads = body ? [...body.querySelectorAll('h1,h2,h3,h4,h5,h6')] : [];
+    if (heads.length < 3) { nav.hidden = true; nav.innerHTML = ''; return; }
+    heads.forEach((h, i) => { if (!h.id) h.id = 'toc-sec-' + i; });
+    const trunc = s => (s.trim().length > 48 ? s.trim().slice(0, 47) + '…' : s.trim());
+    nav.innerHTML = '<span class="toc-head">On this reading&nbsp;·</span>' +
+      heads.map(h => `<a class="toc-pill" href="#${h.id}" data-t="${h.id}">${escapeHtml(trunc(h.textContent))}</a>`).join('');
+    nav.hidden = false;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    nav.onclick = e => {
+      const a = e.target && e.target.closest ? e.target.closest('a.toc-pill') : null;
+      if (!a) return;
+      e.preventDefault();
+      const el = document.getElementById(a.getAttribute('data-t'));
+      if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    };
+
+    tocObserver = new IntersectionObserver(rows => {
+      rows.forEach(r => {
+        if (!r.isIntersecting) return;
+        nav.querySelectorAll('a.toc-pill').forEach(p =>
+          p.classList.toggle('is-active', p.getAttribute('data-t') === r.target.id));
+      });
+    }, { rootMargin: '-14% 0px -74% 0px' });
+    heads.forEach(h => tocObserver.observe(h));
+  }
+
+  /* ---------- figure lightbox (v2.10) ----------
+     One overlay element; event delegation; Esc/arrows; no library, no loops. */
+  function initLightbox_() {
+    const lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.hidden = true;
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-label', 'Figure viewer');
+    lb.innerHTML =
+      '<button class="lb-close" type="button" aria-label="Close">×</button>' +
+      '<button class="lb-nav lb-prev" type="button" aria-label="Previous figure">‹</button>' +
+      '<figure><img alt=""><figcaption></figcaption></figure>' +
+      '<button class="lb-nav lb-next" type="button" aria-label="Next figure">›</button>';
+    document.body.appendChild(lb);
+
+    let figs = [], idx = 0, open = false;
+    const imgEl = () => lb.querySelector('img');
+    const capEl = () => lb.querySelector('figcaption');
+
+    function collect() {
+      figs = [...document.querySelectorAll('#reader-view .reader-body .media-figure img')];
+    }
+    function show(i) {
+      if (!figs.length) return;
+      idx = (i + figs.length) % figs.length;
+      const im = figs[idx];
+      imgEl().src = im.currentSrc || im.src;
+      imgEl().alt = im.alt || '';
+      const fig = im.closest('figure');
+      const cap = fig && fig.querySelector('figcaption');
+      capEl().textContent = cap ? cap.textContent : (im.alt || '');
+      const multi = figs.length > 1;
+      lb.querySelector('.lb-prev').hidden = !multi;
+      lb.querySelector('.lb-next').hidden = !multi;
+    }
+    function openBox(img) {
+      collect();
+      if (!figs.length) return;
+      const at = figs.indexOf(img);
+      show(at < 0 ? 0 : at);
+      lb.hidden = false; open = true;
+      document.body.classList.add('lb-open');
+    }
+    function closeBox() {
+      lb.hidden = true; open = false;
+      document.body.classList.remove('lb-open');
+      imgEl().src = '';
+    }
+
+    document.addEventListener('click', e => {
+      if (!open) {
+        const img = e.target && e.target.closest ?
+          e.target.closest('#reader-view .reader-body .media-figure img') : null;
+        if (img) { e.preventDefault(); openBox(img); }
+        return;
+      }
+      if (e.target === lb || (e.target.closest && e.target.closest('.lb-close'))) return closeBox();
+      if (e.target.closest && e.target.closest('.lb-next')) return show(idx + 1);
+      if (e.target.closest && e.target.closest('.lb-prev')) return show(idx - 1);
+    });
+
+    /* capture phase: Esc closes the lightbox before the reader's own Esc handler */
+    document.addEventListener('keydown', e => {
+      if (!open) return;
+      if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); closeBox(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+    }, true);
+  }
+  initLightbox_();
 
   /* ---------- RSS link (only when backend is connected) ---------- */
   if (!DEMO) {

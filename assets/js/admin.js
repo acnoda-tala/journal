@@ -213,7 +213,37 @@
     $('#f-date').value = entry && entry.date ? entry.date : new Date().toISOString().slice(0, 10);
     $('#f-tags').value = entry ? entry.tags || '' : '';
     $('#f-status').value = entry && entry.status ? entry.status : 'draft';
-    $('#f-content').value = entry ? entry.content || '' : '';
+    /* separate the [refs] block into its own box (keeps body clean) - wherever it sits */
+    let body = entry ? entry.content || '' : '';
+    let refsVal = '';
+    const rm = body.match(/\[refs\][\s\S]*?\[\/refs\]/);
+    if (rm) {
+      body = (body.slice(0, rm.index) + body.slice(rm.index + rm[0].length))
+        .replace(/\n{3,}/g, '\n\n').trimEnd();
+      refsVal = rm[0].replace(/^\s*\[refs\]/, '').replace(/\[\/refs\]\s*$/, '').trim();
+    }
+
+    /* still empty? harvest citations pasted at the end of the body itself (toast lets Arnold undo) */
+    if (!refsVal) {
+      const paras = body.split(/\n{2,}/);
+      const cites = [];
+      const looksLikeCite = b => b.length >= 35 && /[(](?:\d{4}[a-z]?|n\.d\.)[),.\]]?/.test(b)
+        && !/^(?:#{1,3}\s|>\s|[-*]\s|\d[).]\s|!\[|\[)/.test(b.trim());
+      while (paras.length) {
+        const last = paras[paras.length - 1].trim();
+        if (!last) { paras.pop(); continue; }
+        if (looksLikeCite(last)) cites.unshift(paras.pop());
+        else break;
+      }
+      if (cites.length >= 2) {
+        body = paras.join('\n\n').trimEnd();
+        body = body.replace(/\n?\*?\*?\s*!!?\s*RE?FE?RE?N?C?E?S?\s*!!?\s*\*?\*?\s*$/i, '');
+        refsVal = cites.map(c => c.trim()).join('\n');
+        toast('✦ Found ' + cites.length + ' references at the end of the text - moved to the References box');
+      }
+    }
+    $('#f-content').value = body;
+    $('#f-refs').value = refsVal;
     $('#f-excerpt').value = entry ? entry.excerpt || '' : '';
     updatePreview();
     $('#list-view').classList.add('hidden');
@@ -306,8 +336,20 @@
     else toast('Error saving settings: ' + lastErr, true);
   }
 
+  /* body + references box, merged for storage; the box always wins */
+  function mergedContent_() {
+    let out = $('#f-content').value.replace(/\s+$/, '');
+    const refsEl = $('#f-refs');
+    const refs = refsEl ? refsEl.value.trim() : '';
+    if (!refs) return out;
+    const rx = /\[refs\][\s\S]*?\[\/refs\]/;
+    if (rx.test(out)) out = out.replace(rx, '[refs]\n' + refs + '\n[/refs]');
+    else out += '\n\n[refs]\n' + refs + '\n[/refs]';
+    return out;
+  }
+
   function collectForm() {
-    const content = $('#f-content').value;
+    const content = mergedContent_();
     return {
       title: $('#f-title').value.trim() || '(untitled)',
       unit: $('#f-unit').value,
@@ -316,7 +358,7 @@
       date: $('#f-date').value,
       tags: $('#f-tags').value.trim(),
       status: $('#f-status').value,
-      excerpt: $('#f-excerpt').value.trim() || mdToPlain(content).slice(0, 200),
+      excerpt: $('#f-excerpt').value.trim() || mdToPlain($('#f-content').value).slice(0, 200),
       content,
     };
   }
@@ -351,10 +393,12 @@
 
   /* ---------- markdown toolbar + preview ---------- */
   function updatePreview() {
-    const src = $('#f-content').value.trim();
-    $('#preview-body').innerHTML = src
+    const src = (typeof mergedContent_ === 'function' ? mergedContent_() : $('#f-content').value).trim();
+    const prev = $('#preview-body');
+    prev.innerHTML = src
       ? mdToHtml(src)
       : '<span class="placeholder">Your entry will preview here as you write…</span>';
+    if (src && window.linkCitations) linkCitations(prev); // same treatment the live reader gets
   }
 
   function wrapSelection(before, after) {
@@ -544,6 +588,7 @@
   $('#cancel-edit-btn').addEventListener('click', closeEditor);
   $('#save-btn').addEventListener('click', saveEntry);
   $('#f-content').addEventListener('input', updatePreview);
+  $('#f-refs').addEventListener('input', updatePreview);
 
   /* media bar */
   $('#md-upload').addEventListener('click', () => $('#media-file').click());
