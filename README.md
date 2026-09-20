@@ -12,7 +12,7 @@
   deployment needs **New version → Deploy**.
 - **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
   the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
-  each version. Current: **v2.19**. If live files differ from the workspace, upload the files listed
+  each version. Current: **v2.20**. If live files differ from the workspace, upload the files listed
   under the newest log entries.
 - **To brief a new AI chat, paste:**
 
@@ -449,7 +449,18 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
-### 2026-09-20 - v2.19 "The little book"
+### 2026-09-20 - v2.20 "Small and in place"
+- **Mobile: entries first.** Below 1050px the home stacks as entries -> then the
+  about-author card, filters, course map and sources (previously the sidebar
+  came first and entries needed a long scroll).
+- **PDF flip-book: smaller and inline.** Dropped the pinned right-hand column and
+  the widened page layout entirely (the sticky panel survived scrolling, which
+  felt intrusive). The book now sits INSIDE the flow of the entry exactly where it
+  was inserted: ~330px wide (small enough that page 1 reads at a glance), centered
+  with breathing room, no sticky behaviour - it scrolls away with its part of the
+  text. Flip controls, fullscreen, fallback-reader and lazy engine all unchanged.
+- Files touched: `assets/js/journal.js`, `assets/css/style.css`, `README.md`.
+
 - **PDF flip-book replaces open scrolling** for same-origin PDFs: a pocket card
   (max ~460px, fits the side column without pushing the text around) that renders the
   document page by page. Click the left/right half of the page (or ‹ ›, or arrow keys)

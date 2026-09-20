@@ -348,24 +348,6 @@ function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'genera
     document.title = 'Tala · The Learning Journal of Arnold C. Noda';
   }
 
-  /* scrollable PDF parked beside the entry text (v2.16) */
-  function layoutPdfAside_() {
-    const body = document.querySelector('#reader-view .reader-body');
-    if (!body) return;
-    const pdf = body.querySelector('.pdf-embed');
-    if (!pdf) return;
-    const split = document.createElement('div');
-    split.className = 'reader-split';
-    body.parentNode.insertBefore(split, body);
-    split.appendChild(body);
-    const page = body.closest('.page') || document.querySelector('.page');
-    if (page) page.classList.add('page--pdf');
-    const aside = document.createElement('div');
-    aside.className = 'reader-pdf';
-    aside.appendChild(pdf);
-    split.appendChild(aside);
-  }
-
   /* ---------- PDF flip-book (v2.19) ----------
      Same-origin PDFs (assets/pdf/...) become a compact, clickable page-flip book
      rendered lazily with pdf.js. Cross-origin/embedded viewers (Google Drive
@@ -555,7 +537,6 @@ function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'genera
 
     buildTOC_();
     if (window.linkCitations) linkCitations(document.querySelector('#reader-view .reader-body'));
-    layoutPdfAside_();
     upgradePdfBooks_();
   }
 
