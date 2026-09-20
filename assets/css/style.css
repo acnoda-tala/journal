@@ -881,14 +881,15 @@ a:hover { color: var(--maroon-dark); text-decoration-color: currentColor; }
 .status-pill.draft { color: var(--ink-faint); border: 1px solid var(--rule); }
 .row-actions { display: flex; gap: 8px; }
 
-.editor-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 26px; align-items: start; }
+.editor-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 26px; align-items: start; }
+.editor-grid > * { min-width: 0; }
 @media (max-width: 940px) { .editor-grid { grid-template-columns: 1fr; } }
 
 .md-toolbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .md-toolbar button { font-family: var(--sans); font-size: .73rem; font-weight: 600; padding: 6px 11px; border-radius: 7px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-soft); cursor: pointer; }
 .md-toolbar button:hover { border-color: var(--maroon); color: var(--maroon); }
 
-.preview-pane .panel-body { font-family: var(--serif); font-size: 1rem; line-height: 1.8; min-height: 300px; }
+.preview-pane .panel-body { font-family: var(--sans); font-size: 1rem; line-height: 1.8; min-height: 300px; overflow-wrap: anywhere; }
 .preview-pane .panel-body blockquote { border-left: 2px solid var(--maroon); margin: 1.2em 0; padding-left: 16px; font-style: italic; color: var(--ink-soft); }
 .preview-pane .placeholder { color: var(--ink-faint); font-style: italic; }
 
@@ -1546,3 +1547,21 @@ video, audio, canvas { max-width: 100%; }
 /* admin: unsaved-changes badge */
 body.unsaved #save-btn { box-shadow: 0 0 0 3px rgba(123, 17, 19, .22); }
 body.unsaved #editor-view h2::after { content: ' • unsaved'; color: var(--maroon); font-size: .55em; vertical-align: middle; }
+
+/* ============ v2.17 home = entries first + compact About-TALA card ============ */
+/* long URLs can no longer squeeze the editor / stretch the page */
+.editor-grid { min-width: 0; }
+.reader-view a, .preview-pane .panel-body a { overflow-wrap: anywhere; }
+
+section.hero.about-tala {
+  border: 1px solid var(--rule); border-radius: 14px; background: var(--wash);
+  padding: 18px 24px 14px; margin: 46px 0 8px;
+}
+section.hero.about-tala .kicker { font-size: .68rem; letter-spacing: .18em; }
+section.hero.about-tala .kicker::after { content: ' · about tala'; color: var(--ink-faint); letter-spacing: .1em; font-weight: 600; }
+section.hero.about-tala h1 { font-size: clamp(1.05rem, 1.6vw, 1.3rem); margin: 8px 0 6px; max-width: 64ch; letter-spacing: 0; }
+section.hero.about-tala .lede { font-size: .88rem; color: var(--ink-soft); max-width: 88ch; }
+section.hero.about-tala .hero-meta { margin-top: 14px; border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+section.hero.about-tala .hero-meta > div { padding: 8px 20px 8px 0; margin-right: 20px; font-size: .78rem; }
+section.hero.about-tala .hero-meta b { font-size: 1.25rem; }
+section.hero.about-tala .marginalia { font-size: .8rem; opacity: .9; }

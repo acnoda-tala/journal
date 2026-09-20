@@ -12,7 +12,7 @@
   deployment needs **New version → Deploy**.
 - **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
   the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
-  each version. Current: **v2.16**. If live files differ from the workspace, upload the files listed
+  each version. Current: **v2.17**. If live files differ from the workspace, upload the files listed
   under the newest log entries.
 - **To brief a new AI chat, paste:**
 
@@ -449,7 +449,17 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
-### 2026-09-20 - v2.16 "Friendly, first-screen"
+### 2026-09-20 - v2.17 "Entries first"
+- **Home redesign (per Arnold):** the journal entries now lead the home page - the
+  About-TALA hero became a compact card pinned BELOW the entries ("smaller box, like
+  about the author"). Same settings ids, so Site settings still drive every word.
+- **Editor squeeze fixed:** pasting long links into references used to blow out the
+  Live preview column and compress the Write pane (CSS-grid min-content expansion).
+  Now `minmax(0, ...)` + `min-width: 0` locks both columns, and long URLs wrap
+  (`overflow-wrap: anywhere`) in the preview AND the live reader. Preview body font
+  also aligned to Arial (it had kept the serif stack).
+- Files touched: `index.html` (hero moved), `assets/css/style.css`, `README.md`.
+
 - **Arial for all reading text** (per Arnold: easy on the eyes). Long-form body,
   excerpts and the editor are now Arial; headings/wordmark keep the UP serif identity.
 - **Favicon can no longer disappear**: the pen-star is INLINED into every page head as
