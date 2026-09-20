@@ -117,14 +117,9 @@ const SITE_DEFAULTS = {
   about_text:  'I write news by day: champions, board passers, ribbon cuttings. I read DevCom\nby night. This journal keeps the questions that good news cannot answer.\nWriting from Legazpi, beside Mayon and the sea.',
   footer_text: 'A journal for DEVC 202, kept in public so I will remember what I promised\nmyself to become.\nWritten in Legazpi City, where the sea is never far.',
   footer_req_text: '**A course requirement.** This website is my learning journal for **DEVC 202: Development Communication Concepts and Approaches**, published as a course requirement (the journal itself carries 20% of the final grade) of the Master of Development Communication program, University of the Philippines Open University, First Semester 2026-2027. Unless a note says otherwise, every entry here is my own writing. The views on this site are mine alone: not my employer\u2019s, and not my school\u2019s.',
-  footer_ai_text: '**AI assistance, disclosed.** This website was designed and built with the help of an artificial intelligence assistant: the design, the code, the calendar, and the course digest were drafted by AI under my direction. The journal entries themselves are chosen, written, edited, and approved by me.',
 
-  /* --- calendar and digest pages (v2.7) --- */
   calendar_title: 'My calendar',
   calendar_sub:  'Deadlines, activities, readings, and everything else this semester throws at me. **Red** is a deadline, **gold** is a TMA, **green** is an activity, **gray** is personal. Sign in at the [admin desk](admin.html) to add your own.',
-  digest_kicker: 'DEVC 202 · Development Communication Concepts & Approaches · 1S 2026-2027',
-  digest_title:  'The course, on one *page*.',
-  digest_lede:   'Everything DEVC 202 asks of me, kept in one place so I never lose the thread: the lineage of the discipline, the problematique, the definitions to know cold, the grading matrix, and the exact shape of every output due. Condensed from the **Course Guide and Resource Kit** (Amoloza & Tanay) and the readings in the course pack.',
 
   /* --- social media (blank = hidden) --- */
   social_facebook:  '',

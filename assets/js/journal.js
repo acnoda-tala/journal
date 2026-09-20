@@ -358,6 +358,8 @@ function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'genera
     split.className = 'reader-split';
     body.parentNode.insertBefore(split, body);
     split.appendChild(body);
+    const page = body.closest('.page') || document.querySelector('.page');
+    if (page) page.classList.add('page--pdf');
     const aside = document.createElement('div');
     aside.className = 'reader-pdf';
     aside.appendChild(pdf);

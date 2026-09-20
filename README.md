@@ -12,7 +12,7 @@
   deployment needs **New version → Deploy**.
 - **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
   the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
-  each version. Current: **v2.17**. If live files differ from the workspace, upload the files listed
+  each version. Current: **v2.18**. If live files differ from the workspace, upload the files listed
   under the newest log entries.
 - **To brief a new AI chat, paste:**
 
@@ -449,7 +449,24 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
-### 2026-09-20 - v2.17 "Entries first"
+### 2026-09-20 - v2.18 "Links in your words"
+- **Words-as-links, one button.** New 🔗 Link tool in the editor: the words you pick
+  become the clickable text (default "CLICK HERE") hiding the URL underneath. Syntax
+  `[words](https://...)` was already supported site-wide; now it is one tap. Selecting
+  text first pre-fills the words.
+- **PDF layout re-tuned:** with an embedded PDF, the reading page widens to 1680px and
+  the split keeps the text column full-size while the PDF soaks up ALL of the right
+  space (sticky, full viewport height, soft card shadow). On narrower screens it falls
+  back to stacking below the text, unchanged.
+- **Course digest retired** (course.html removed): nav links, page, settings fields,
+  planner plan-links, and config defaults all pruned. Planner items now point at the
+  course pack itself. The static footer AI sentence mentions only journal+calendar+planner.
+  NOTE on publish: a zip overlay cannot delete files - delete `course.html` from the
+  local clone (Explorer) so Desktop commits the removal.
+- Files touched: `assets/js/admin.js`, `assets/js/journal.js`, `assets/js/config.js`,
+  `assets/css/style.css`, `admin.html`, `planner.html`, `index.html`, `README.md`;
+  deleted: `course.html`.
+
 - **Home redesign (per Arnold):** the journal entries now lead the home page - the
   About-TALA hero became a compact card pinned BELOW the entries ("smaller box, like
   about the author"). Same settings ids, so Site settings still drive every word.

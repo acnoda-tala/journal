@@ -626,6 +626,21 @@
   $('#md-video').addEventListener('click', insertVideoLink);
   $('#md-audio').addEventListener('click', insertAudioLink);
   $('#md-pdflink').addEventListener('click', insertPdfLink);
+  $('#md-link').addEventListener('click', insertTextLink);
+
+  /* words-you-choose link: [CLICK HERE](https://...) */
+  function insertTextLink() {
+    const ta = $('#f-content');
+    const sel = ta.value.slice(ta.selectionStart, ta.selectionEnd).trim();
+    const label = prompt('Words to show (they become the clickable text):', sel || 'CLICK HERE');
+    if (label === null) return;
+    const url = prompt('Paste the web address it should open:', 'https://');
+    if (!url || !/^https?:\/\/\S+/i.test(url.trim())) { if (url !== null) toast('That does not look like a web address', true); return; }
+    const piece = '[' + (label.trim() || 'CLICK HERE') + '](' + url.trim() + ')';
+    ta.setRangeText(piece, ta.selectionStart, ta.selectionEnd, 'end');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    ta.focus();
+  }
   $('#refresh-btn').addEventListener('click', async () => {
     try {
       const data = await apiGet({ action: 'listAll', key: KEY });
