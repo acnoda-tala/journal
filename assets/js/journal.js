@@ -366,6 +366,135 @@ function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'genera
     split.appendChild(aside);
   }
 
+  /* ---------- PDF flip-book (v2.19) ----------
+     Same-origin PDFs (assets/pdf/...) become a compact, clickable page-flip book
+     rendered lazily with pdf.js. Cross-origin/embedded viewers (Google Drive
+     preview etc.) keep the built-in scrollable reader - browsers will not hand a
+     page the raw bytes of those files, so a flip is not possible for them. */
+  function ensurePdfEngine_() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (window.__pdfjsP) return window.__pdfjsP;
+    window.__pdfjsP = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve(window.pdfjsLib);
+      };
+      s.onerror = () => reject(new Error('pdf engine failed to load'));
+      document.head.appendChild(s);
+    });
+    return window.__pdfjsP;
+  }
+
+  function sameOriginPdf_(src) {
+    if (/^https?:\/\/(drive|docs)\.google\.com/i.test(src)) return null;      // browser-blocked bytes
+    if (!/\.pdf(\?|#|$)/i.test(src)) return null;
+    try { new URL(src, location.href); } catch (e) { return null; }
+    const abs = new URL(src, location.href);
+    if (abs.origin === location.origin || /^\.\.?\//.test(src) || src[0] === '/') return abs.href;
+    return null;                                                                  // cross-origin: keep the reader
+  }
+
+  function upgradePdfBooks_() {
+    const frames = document.querySelectorAll('#reader-view .pdf-embed iframe');
+    frames.forEach(fr => {
+      const src = fr.getAttribute('src') || '';
+      const direct = sameOriginPdf_(src);
+      if (!direct) return;
+      const wrap = fr.parentElement;
+      const title = fr.getAttribute('title') || 'PDF document';
+      const book = document.createElement('div');
+      book.className = 'pdf-book';
+      book.tabIndex = 0;
+      book.setAttribute('role', 'group');
+      book.setAttribute('aria-label', 'Flip through the PDF: ' + title);
+      book.innerHTML =
+        '<div class="pb-bar">' +
+          '<button class="pb-btn pb-prev" aria-label="Previous page">&lsaquo;</button>' +
+          '<span class="pb-page">…</span>' +
+          '<button class="pb-btn pb-next" aria-label="Next page">&rsaquo;</button>' +
+          '<span class="pb-title">' + escapeHtml(title) + '</span>' +
+          '<a class="pb-open" href="' + direct + '" target="_blank" rel="noopener" title="Open the PDF in a new tab">&#8599;</a>' +
+          '<button class="pb-btn pb-full" aria-label="Fullscreen">&#x26F6;</button>' +
+        '</div>' +
+        '<div class="pb-stage"><canvas></canvas><div class="pb-state">tap to flip · loading</div></div>';
+      wrap.replaceChildren(book);
+      initPdfBook_(book, direct, wrap);
+    });
+  }
+
+  function initPdfBook_(book, src, originalWrap) {
+    const state = { pdf: null, page: 1, n: 0, busy: false };
+    const canvas = book.querySelector('canvas');
+    const stage  = book.querySelector('.pb-stage');
+    const pageEl = book.querySelector('.pb-page');
+    const stateEl= book.querySelector('.pb-state');
+    const fail = (msg) => {
+      const fr = document.createElement('iframe');
+      fr.src = src; fr.title = book.querySelector('.pb-title').textContent || 'PDF document'; fr.loading = 'lazy';
+      const back = document.createElement('div'); back.className = 'pdf-embed'; back.appendChild(fr);
+      book.replaceWith(back); console.warn('pdf flip-book fell back:', msg && msg.message || msg);
+    };
+    async function render(dir) {
+      if (state.busy) return; state.busy = true;
+      try {
+        const pg = await state.pdf.getPage(state.page);
+        const fitW = stage.clientWidth - (book.classList.contains('is-full') ? 96 : 28);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        let vp = pg.getViewport({ scale: 1 });
+        const scale = (Math.max(fitW, 220) / vp.width) * dpr;
+        vp = pg.getViewport({ scale });
+        canvas.width = Math.floor(vp.width); canvas.height = Math.floor(vp.height);
+        canvas.style.width = (vp.width / dpr) + 'px'; canvas.style.height = (vp.height / dpr) + 'px';
+        await pg.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        stateEl.classList.add('hidden');
+        stage.classList.remove('flip-l', 'flip-r');
+        void stage.offsetWidth;
+        stage.classList.add(dir === 1 ? 'flip-r' : 'flip-l');
+        pageEl.textContent = state.page + ' / ' + state.n;
+      } catch (e) { fail(e); } finally { state.busy = false; }
+    }
+    function turn(d) {
+      const next = state.page + d;
+      if (next < 1 || next > state.n) { stage.classList.remove('flip-l','flip-r'); void stage.offsetWidth; stage.classList.add(d === 1 ? 'flip-r' : 'flip-l'); return; }
+      state.page = next; render(d);
+      const nx = next + d;
+      if (nx >= 1 && nx <= state.n) state.pdf.getPage(nx).then(() => {}).catch(() => {});   // quiet prefetch
+    }
+    /* wiring (events only - library-free elsewhere) */
+    book.querySelector('.pb-prev').addEventListener('click', e => { e.stopPropagation(); turn(-1); });
+    book.querySelector('.pb-next').addEventListener('click', e => { e.stopPropagation(); turn(1); });
+    stage.addEventListener('click', e => turn(e.offsetX > stage.clientWidth / 2 ? 1 : -1));
+    book.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); turn(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); turn(-1); }
+    });
+    book.querySelector('.pb-full').addEventListener('click', () => {
+      (document.fullscreenElement === book) ? document.exitFullscreen() : book.requestFullscreen().catch(() => {});
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const full = document.fullscreenElement === book;
+      book.classList.toggle('is-full', full);
+      if (state.pdf) setTimeout(() => render(1), 80);
+    });
+    /* lazy start: engine loads only when the book scrolls into view */
+    const io = new IntersectionObserver(async (ents) => {
+      if (!ents.some(en => en.isIntersecting)) return;
+      io.disconnect();
+      try {
+        const lib = await ensurePdfEngine_();
+        state.pdf = await lib.getDocument(src).promise;
+        state.n = state.pdf.numPages;
+        pageEl.textContent = '1 / ' + state.n;
+        stateEl.textContent = 'tap to flip';
+        render(1);
+      } catch (e) { fail(e); }
+    }, { rootMargin: '240px' });
+    io.observe(book);
+  }
+
   function showCalendar() {
     activate('calendar-view');
     document.title = 'Calendar · Tala';
@@ -427,6 +556,7 @@ function canonUnit(u) { return (String(u || '').trim().toLowerCase() === 'genera
     buildTOC_();
     if (window.linkCitations) linkCitations(document.querySelector('#reader-view .reader-body'));
     layoutPdfAside_();
+    upgradePdfBooks_();
   }
 
   function route() {

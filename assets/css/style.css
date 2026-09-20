@@ -1569,3 +1569,60 @@ section.hero.about-tala .hero-meta { margin-top: 14px; border-bottom: 1px solid 
 section.hero.about-tala .hero-meta > div { padding: 8px 20px 8px 0; margin-right: 20px; font-size: .78rem; }
 section.hero.about-tala .hero-meta b { font-size: 1.25rem; }
 section.hero.about-tala .marginalia { font-size: .8rem; opacity: .9; }
+
+/* ============ PDF FLIP-BOOK (v2.19) ============ */
+.pdf-book {
+  width: 100%; max-width: 460px; margin: 0 auto 14px;
+  background: var(--paper-card); border: 1px solid var(--rule); border-radius: 14px;
+  overflow: hidden; box-shadow: 0 14px 34px rgba(27, 27, 27, .09);
+  outline-offset: 2px;
+}
+.pdf-book:focus-visible { outline: 2px solid var(--maroon); }
+.pb-bar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px; border-bottom: 1px solid var(--rule); background: var(--wash);
+}
+.pb-btn {
+  width: 26px; height: 26px; flex: 0 0 auto; border: 1px solid var(--rule); border-radius: 7px;
+  background: var(--paper); color: var(--maroon); font-size: 15px; line-height: 1; cursor: pointer;
+}
+.pb-btn:hover { border-color: var(--maroon); background: rgba(123, 17, 19, .06); }
+.pb-page { font-family: var(--sans); font-size: .72rem; font-weight: 700; color: var(--ink-soft); min-width: 44px; text-align: center; }
+.pb-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--sans); font-size: .72rem; color: var(--ink-faint); }
+.pb-open { color: var(--ink-faint); text-decoration: none; font-size: .85rem; }
+.pb-open:hover { color: var(--maroon); }
+.pb-stage {
+  position: relative; padding: 16px 14px; cursor: pointer; user-select: none;
+  background: linear-gradient(180deg, #f6f4ee, #efece4); text-align: center;
+}
+.pb-stage canvas {
+  max-width: 100%; height: auto !important; display: inline-block;
+  border-radius: 3px; box-shadow: 0 5px 18px rgba(17, 12, 8, .22), 0 1px 0 rgba(17, 12, 8, .08);
+  background: #fff;
+}
+.pb-state { margin-top: 9px; font-family: var(--sans); font-size: .68rem; color: var(--ink-faint); }
+.pb-state.hidden { display: none; }
+@keyframes pb-flip-r { 0% { opacity: .25; transform: translateX(10px) perspective(600px) rotateY(7deg); } 100% { opacity: 1; transform: none; } }
+@keyframes pb-flip-l { 0% { opacity: .25; transform: translateX(-10px) perspective(600px) rotateY(-7deg); } 100% { opacity: 1; transform: none; } }
+.pb-stage.flip-r canvas { animation: pb-flip-r .2s ease-out; }
+.pb-stage.flip-l canvas { animation: pb-flip-l .2s ease-out; }
+@media (prefers-reduced-motion: reduce) { .pb-stage.flip-r canvas, .pb-stage.flip-l canvas { animation: none; } }
+
+/* fullscreen reading */
+.pdf-book:fullscreen {
+  max-width: none; width: 100%; height: 100%; border-radius: 0; border: none;
+  background: var(--paper); display: flex; flex-direction: column;
+}
+.pdf-book.is-full .pb-bar { padding: 10px 16px; }
+.pdf-book.is-full .pb-stage { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; }
+.pdf-book.is-full .pb-state { display: none; }
+
+/* the right-hand pdf column may hold either the tall reader or the compact book */
+@media (min-width: 1040px) {
+  .reader-pdf .pdf-book { max-width: 100%; margin: 0 0 8px; }
+  .reader-pdf:has(.pdf-book) { height: auto; max-height: calc(100vh - 44px); }
+}
+[data-theme="dark"] .pb-stage { background: linear-gradient(180deg, #2a2721, #232019); }
+[data-theme="dark"] .pdf-book { box-shadow: none; }
+@media print { .pdf-book { display: none; } }

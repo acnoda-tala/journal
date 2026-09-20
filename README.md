@@ -12,7 +12,7 @@
   deployment needs **New version → Deploy**.
 - **Owner conventions:** no frameworks, no external JS libs; maroon/ink paper aesthetic; mobile-first;
   the assistant documents every change in the **📝 Maintenance Log** (bottom of this file) and names
-  each version. Current: **v2.18**. If live files differ from the workspace, upload the files listed
+  each version. Current: **v2.19**. If live files differ from the workspace, upload the files listed
   under the newest log entries.
 - **To brief a new AI chat, paste:**
 
@@ -449,7 +449,26 @@ You asked to be able to start fresh chats anytime. Do this:
 
 *(newest first - updated on every change)*
 
-### 2026-09-20 - v2.18 "Links in your words"
+### 2026-09-20 - v2.19 "The little book"
+- **PDF flip-book replaces open scrolling** for same-origin PDFs: a pocket card
+  (max ~460px, fits the side column without pushing the text around) that renders the
+  document page by page. Click the left/right half of the page (or ‹ ›, or arrow keys)
+  to flip with a soft page-turn animation; ⛶ opens fullscreen reading with the same
+  controls; ↗ opens the raw PDF in a new tab.
+- **Routing**: `assets/pdf/yourfile.pdf` (same repo/site) = flip-book. Google Drive /
+  external linked PDFs = keep the scrollable built-in reader (browsers block
+  cross-origin PDF bytes by design - CORS - so they cannot flip; the reader still sits
+  in the same nice column).
+- **Lean by design**: pdf.js 3.11.174 is fetched ONCE, lazily, only when a flip-book
+  actually scrolls into view (via IntersectionObserver + one-time script injection);
+  no framework, polling loops zero; pages render on demand with quiet prefetch of the
+  next page; if the engine ever fails (offline CDN), it silently falls back to the
+  classic iframe reader, so nothing ever breaks. Reduced-motion respected; print clean.
+- Arnold's new workflow for the book: fold the PDF into the `assets/pdf/` folder of the
+  GitHub Desktop clone + Commit & Push, then ▤ PDF link in the editor with the
+  `assets/pdf/name.pdf` address.
+- Files touched: `assets/js/journal.js`, `assets/css/style.css`, `admin.html`, `README.md`.
+
 - **Words-as-links, one button.** New 🔗 Link tool in the editor: the words you pick
   become the clickable text (default "CLICK HERE") hiding the URL underneath. Syntax
   `[words](https://...)` was already supported site-wide; now it is one tap. Selecting
