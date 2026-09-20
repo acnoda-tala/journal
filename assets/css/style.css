@@ -1310,3 +1310,216 @@ img.media-inline { max-width: 100%; height: auto; border-radius: 8px; vertical-a
 
 /* cheaper rendering for long pages (progressive enhancement only) */
 .dsec { content-visibility: auto; contain-intrinsic-size: 1px 700px; }
+
+/* ============ MODULE BADGE + APA REFERENCES (v2.9) ============ */
+/* [module N · subtitle] marks a course-module entry; [refs...[/refs] lists APA sources */
+
+.module-badge {
+  display: flex; flex-direction: column; gap: 2px;
+  margin: 0 0 22px; padding: 14px 18px;
+  border: 1px solid var(--rule); border-left: 4px solid var(--maroon);
+  border-radius: 10px; background: #fdf8f4;
+}
+.module-badge .mb-kick {
+  font-size: 11px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
+  color: var(--maroon);
+}
+.module-badge .mb-title {
+  font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--ink);
+  line-height: 1.3;
+}
+
+.apa-refs { margin: 34px 0 8px; }
+.apa-refs .apa-h {
+  margin: 0 0 10px; padding-top: 14px; border-top: 1px solid var(--rule);
+  font-size: 12px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.apa-refs .apa-list { display: grid; gap: 4px; }
+.apa-refs .apa-ref {
+  margin: 0; font-family: var(--serif); font-size: 15px; line-height: 1.6; color: var(--ink);
+  padding-left: 1.6em; text-indent: -1.6em;           /* the APA hanging indent */
+  overflow-wrap: break-word;
+}
+.apa-refs .apa-ref a { color: var(--maroon); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ============ LIGHTBOX + ENTRY TOC (v2.10) ============ */
+/* zero-library: one overlay element, delegation; sticky pill bar for long entries */
+
+.reader-body .media-figure img { cursor: zoom-in; }
+
+.lightbox {
+  position: fixed; inset: 0; z-index: 80;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(16, 10, 6, .9); padding: 3vh 3vw;
+}
+.lightbox[hidden] { display: none; }
+.lightbox figure { margin: 0; max-width: min(1200px, 100%); text-align: center; }
+.lightbox img {
+  max-width: 100%; max-height: 82vh; object-fit: contain;
+  border-radius: 8px; background: #fff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  animation: lb-pop .18s ease-out; cursor: default;
+}
+.lightbox figcaption {
+  color: #e8e2d8; font: 500 13.5px/1.5 var(--sans);
+  margin: 12px auto 0; max-width: 72ch;
+}
+.lb-close, .lb-nav {
+  position: fixed; z-index: 2; width: 46px; height: 46px; border-radius: 999px;
+  background: rgba(255, 255, 255, .10); color: #fff;
+  border: 1px solid rgba(255, 255, 255, .28);
+  font-size: 24px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.lb-close { top: 16px; right: 16px; }
+.lb-prev { left: 12px; top: 50%; transform: translateY(-50%); }
+.lb-next { right: 12px; top: 50%; transform: translateY(-50%); }
+.lb-close:hover, .lb-nav:hover { background: rgba(255, 255, 255, .24); }
+body.lb-open { overflow: hidden; }
+@keyframes lb-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lightbox img { animation: none; } }
+@media (max-width: 640px) { .lb-nav { display: none; } }
+
+/* reader: sticky section pills */
+.entry-toc {
+  position: sticky; top: 8px; z-index: 25;
+  display: flex; align-items: center; gap: 6px;
+  margin: 14px 0 10px; padding: 8px 12px;
+  background: rgba(255, 252, 246, .94); backdrop-filter: blur(6px);
+  border: 1px solid var(--rule); border-radius: 999px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.entry-toc::-webkit-scrollbar { display: none; }
+.entry-toc .toc-head {
+  flex: none; padding-left: 4px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 1.6px;
+  text-transform: uppercase; color: var(--ink-faint); white-space: nowrap;
+}
+.entry-toc a.toc-pill {
+  flex: none; white-space: nowrap; text-decoration: none;
+  font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+  padding: 5px 12px; border-radius: 999px; border: 1px solid transparent;
+}
+.entry-toc a.toc-pill:hover { color: var(--maroon); background: #f6ece6; }
+.entry-toc a.toc-pill.is-active { color: var(--maroon); background: #f6ece6; border-color: #ecd0cd; }
+@media (max-width: 640px) { .entry-toc { top: 6px; border-radius: 14px; align-items: flex-start; } }
+
+/* v2.10 fix guards */
+.entry-toc[hidden] { display: none; }                       /* [hidden] must beat display:flex */
+.reader-body h1, .reader-body h2, .reader-body h3, .reader-body h4,
+.reader-body h5, .reader-body h6 { scroll-margin-top: 84px; }
+
+/* ============ DAY / NIGHT THEME (v2.11) ============ */
+/* palette vars do the heavy lifting; only cream-tinted hard-codes need surgery */
+
+:root[data-theme="dark"] {
+  --maroon:      #c75f58;
+  --green:       #5a9e7b;
+  --gold:        #c9a15c;
+  --paper:       #181410;
+  --paper-card:  #211b15;
+  --ink:         #ece2d3;
+  --ink-soft:    #cfc2b0;
+  --ink-faint:   #94897a;
+  --rule:        #37302a;
+  --wash:        #14100d;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .module-badge { background: #221b15; }
+[data-theme="dark"] .entry-toc { background: rgba(24, 19, 14, .9); }
+[data-theme="dark"] .entry-toc a.toc-pill:hover,
+[data-theme="dark"] .entry-toc a.toc-pill.is-active { background: #2b211b; color: #e3a79e; }
+[data-theme="dark"] .entry-toc a.toc-pill.is-active { border-color: #4a2c28; }
+[data-theme="dark"] .tbl tr.hi td { background: #262016; }
+[data-theme="dark"] .contrast .cbox.on { background: #262016; }
+[data-theme="dark"] .tab-group .btn.is-active { background: #262016; }
+[data-theme="dark"] .pl-nowpill { background: #3a201d; border-color: #4a2c28; color: #e3a79e; }
+[data-theme="dark"] .pl-chip.hot { background: #3a201d; }
+[data-theme="dark"] .pl-day.is-today { background: #2a2018; }
+[data-theme="dark"] .pl-edit:hover { background: #2b211b; }
+[data-theme="dark"] .pl-editarea { background: #1b1510; color: var(--ink); }
+[data-theme="dark"] .lightbox { background: rgba(8, 6, 4, .94); }
+[data-theme="dark"] ::selection { background: #4a2c28; color: #f6ece6; }
+
+.theme-toggle {
+  position: fixed; right: 14px; bottom: 14px; z-index: 39;
+  width: 44px; height: 44px; border-radius: 999px;
+  border: 1px solid var(--rule); background: var(--paper-card); color: var(--ink-soft);
+  font-size: 19px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .16);
+  transition: transform .15s ease, color .15s ease;
+}
+.theme-toggle:hover { transform: translateY(-2px); color: var(--maroon); }
+[data-theme="dark"] .theme-toggle { box-shadow: 0 6px 18px rgba(0, 0, 0, .5); color: #e8d3a8; }
+@media (prefers-reduced-motion: reduce) { .theme-toggle { transition: none; } }
+
+/* ============ PRINT STYLES (v2.12) ============ */
+/* Ctrl+P = clean, grade-ready pages. Costs zero bytes at runtime. */
+@media print {
+  * { box-shadow: none !important; text-shadow: none !important; }
+
+  .rail, .theme-toggle, .entry-toc, #reader-progress, .lightbox,
+  .back-link, .copy-btn, .prevnext, .fine-links, .pl-top nav, .pl-foot nav,
+  #toast, #cache-note, .pl-edit, .social-row, .skip-link { display: none !important; }
+  .pl-day input[type="checkbox"], #today-check { display: none !important; }
+
+  body { background: #fff !important; color: #111 !important; }
+  main, .reader-view, .journal-view, .pl-wrap { margin: 0 !important; max-width: none !important; }
+  .reader-body { font-size: 11.5pt; }
+
+  a { color: inherit; text-decoration: underline; }
+
+  h1, h2, h3, h4, h5, h6 { page-break-after: avoid; }
+  .media-figure, blockquote, .apa-ref, .pl-day, .module-badge, .site-footer { page-break-inside: avoid; }
+  .media-figure img { max-width: 100% !important; max-height: none !important; }
+  .module-badge { border: 1pt solid #999; border-left: 3pt solid #7B1113; background: #fff !important; }
+  .apa-refs .apa-h { page-break-after: avoid; }
+  .pl-block, .pl-card, .pl-rail { border-color: #bbb; break-inside: auto; }
+}
+
+/* ============ BRAND: pen-star + subtitle (v2.13) ============ */
+.wordmark .sub2 {
+  display: block; margin-top: 1px;
+  font-size: 10px; font-weight: 700; letter-spacing: 2.6px;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+
+/* ============ CITATION LINKS + FANCY DIVIDER + STICKY PREVIEW (v2.14) ============ */
+
+/* in-text citation -> reference jump */
+.cite-link {
+  color: var(--maroon); text-decoration: none; cursor: pointer;
+  border-bottom: 1px dotted var(--maroon);
+  background: rgba(123, 17, 19, .06); border-radius: 3px; padding: 0 .08em;
+}
+.cite-link:hover { background: rgba(123, 17, 19, .13); }
+.apa-ref { scroll-margin-top: 96px; }
+.apa-ref.ref-flash { animation: ref-flash 1.3s ease-out; border-radius: 6px; }
+@keyframes ref-flash { 0% { background: #f5dcc9; } 100% { background: transparent; } }
+[data-theme="dark"] .cite-link { background: rgba(199, 95, 88, .12); }
+[data-theme="dark"] .cite-link:hover { background: rgba(199, 95, 88, .2); }
+@media print { .cite-link { color: inherit; border-bottom: none; background: none; } }
+
+/* the typographic section divider - a plain "---", looking gracious */
+.reader-body hr, .preview-pane .panel-body hr {
+  height: 28px; border: 0; position: relative; margin: 34px 0;
+}
+.reader-body hr::before, .preview-pane .panel-body hr::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 1px solid var(--rule);
+}
+.reader-body hr::after, .preview-pane .panel-body hr::after {
+  content: '✦'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 14px; background: var(--paper); color: var(--maroon); font-size: 13px;
+}
+
+/* admin: keep the live preview in view while writing (desktop) */
+@media (min-width: 940px) {
+  .preview-pane { position: sticky; top: 14px; }
+  .preview-pane .panel-body { max-height: calc(100vh - 148px); overflow: auto; padding-right: 4px; }
+}
